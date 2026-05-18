@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 ROOT := $(shell pwd)
 
-.PHONY: help extract catalog update lint clean status test template om
+.PHONY: help extract catalog update lint clean status test test-cli template om
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -13,13 +13,14 @@ status: ## Show project overview with counts
 	@printf "%-30s %d\n" "docs/ (guides)" "$$(find docs/guides -name '*.md' | wc -l)"
 	@printf "%-30s %d\n" "docs/ (ecosystem)" "$$(find docs/ecosystem -name '*.md' | wc -l)"
 	@printf "%-30s %d\n" "docs/ (themes)" "$$(find docs/themes -name '*.md' | wc -l)"
-	@printf "%-30s %d\n" "repos/themes/gui-apps" "$$(find repos/themes/gui-apps -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/themes/waybar" "$$(find repos/themes/waybar -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/themes/colorschemes" "$$(find repos/themes/colorschemes -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/themes/gtk" "$$(find repos/themes/gtk -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/tools" "$$(find repos/tools -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/configs" "$$(find repos/configs -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
-	@printf "%-30s %d\n" "repos/curated" "$$(find repos/curated -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/themes/gui-apps" "$$(find -L repos/themes/gui-apps -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/themes/waybar" "$$(find -L repos/themes/waybar -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/themes/colorschemes" "$$(find -L repos/themes/colorschemes -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/themes/gtk" "$$(find -L repos/themes/gtk -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/tools" "$$(find -L repos/tools -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/configs" "$$(find -L repos/configs -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/curated" "$$(find -L repos/curated -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "repos/related" "$$(find -L repos/related -mindepth 2 -maxdepth 2 -name '.git' -type d | wc -l)"
 	@printf "%-30s %d\n" "templates/" "$$(find templates -name 'colors.toml' | wc -l)"
 	@printf "%-30s %d\n" "modules/" "$$(find modules -name '*.jsonc' -o -name '*.conf' -o -name '*.ini' -o -name '*.toml' | wc -l)"
 	@printf "%-30s %d\n" "overlays/" "$$(find overlays -maxdepth 2 -name '*.conf' | wc -l)"
@@ -50,7 +51,7 @@ status: ## Show project overview with counts
 	@printf "%-30s %d\n" "beacon/ (presence)" "$$(find beacon -type f -not -path '*/.git/*' | wc -l)"
 	@printf "%-30s %d\n" "prism/ (color)" "$$(find prism -type f -not -path '*/.git/*' | wc -l)"
 	@printf "%s\n" "-----------------------------"
-	@printf "%-30s %d\n" "TOTAL REPOS" "$$(find repos -mindepth 2 -maxdepth 4 -name '.git' -type d | wc -l)"
+	@printf "%-30s %d\n" "TOTAL REPOS" "$$(find -L repos -mindepth 2 -maxdepth 4 -name '.git' -type d | wc -l)"
 
 extract: ## Extract all assets from repos/ into dist/
 	@echo "Extracting assets from repos/ into dist/..."
@@ -58,11 +59,11 @@ extract: ## Extract all assets from repos/ into dist/
 
 catalog: ## Show catalog metadata
 	@echo "Catalog: catalog/themes.json, catalog/tools.json, catalog/configs.json"
-	@echo "Total repos: $$(find repos -mindepth 2 -maxdepth 4 -name '.git' -type d | wc -l)"
+	@echo "Total repos: $$(find -L repos -mindepth 2 -maxdepth 4 -name '.git' -type d | wc -l)"
 
 update: ## Pull latest from all cloned repos
 	@echo "Updating all repos..."
-	@find repos -name '.git' -type d -execdir sh -c 'echo "  $$PWD" && git pull --ff-only' \;
+	@find -L repos -name '.git' -type d -execdir sh -c 'echo "  $$PWD" && git pull --ff-only' \;
 
 lint: ## Check structure integrity
 	@echo "Checking structure..."
@@ -71,6 +72,7 @@ lint: ## Check structure integrity
 	@test -d repos/themes/gui-apps || (echo "ERROR: repos/themes/gui-apps missing"; exit 1)
 	@test -d repos/themes/waybar || (echo "ERROR: repos/themes/waybar missing"; exit 1)
 	@test -d catalog || (echo "ERROR: catalog/ missing"; exit 1)
+	@test -d repos/related || (echo "ERROR: repos/related missing"; exit 1)
 	@test -d modules || (echo "ERROR: modules/ missing"; exit 1)
 	@test -d templates/theme || (echo "ERROR: templates/theme missing"; exit 1)
 	@test -d overlays || (echo "ERROR: overlays/ missing"; exit 1)
@@ -100,6 +102,9 @@ lint: ## Check structure integrity
 
 test: ## Run all validators
 	@bash tests/validators/run-all.sh
+
+test-cli: ## Run CLI integration tests
+	@bash tests/cli-integration.sh
 
 template: ## Create a new theme from the skeleton
 	@read -p "Theme name: " name; \

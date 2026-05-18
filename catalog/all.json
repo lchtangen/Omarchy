@@ -1,4 +1,4 @@
-{"generated": "2026-05-18T06:30:51+02:00", "total": 206, "categories": {
+{"generated": "2026-05-18T07:01:27+02:00", "total": 207, "categories": {
   "themes": {
     "gui-apps": [
       {"name": "aether", "path": "repos/themes/gui-apps/aether"}
@@ -397,6 +397,8 @@
 ,
       {"name": "omadora", "path": "repos/curated/omadora"}
 ,
+      {"name": "omarchy", "path": "repos/curated/omarchy"}
+,
       {"name": "omarchy-cachyos", "path": "repos/curated/omarchy-cachyos"}
 ,
       {"name": "omarchy-hub", "path": "repos/curated/omarchy-hub"}
@@ -410,6 +412,30 @@
       {"name": "omarchy-titus", "path": "repos/curated/omarchy-titus"}
 ,
       {"name": "wheel-smith-awesome-omarchy", "path": "repos/curated/wheel-smith-awesome-omarchy"}
+    ]
+  }
+,
+  "related": {
+    "all": [
+      {"name": "donotfeedthevirus-dotfiles", "path": "repos/related/donotfeedthevirus-dotfiles"}
+,
+      {"name": "j5onrf-dots", "path": "repos/related/j5onrf-dots"}
+,
+      {"name": "jehrhardt-dotfiles", "path": "repos/related/jehrhardt-dotfiles"}
+,
+      {"name": "marcelohmdias-dotfiles", "path": "repos/related/marcelohmdias-dotfiles"}
+,
+      {"name": "ohmydebn", "path": "repos/related/ohmydebn"}
+,
+      {"name": "omarchy-mirror", "path": "repos/related/omarchy-mirror"}
+,
+      {"name": "omarchy-site", "path": "repos/related/omarchy-site"}
+,
+      {"name": "pixincreate-configs", "path": "repos/related/pixincreate-configs"}
+,
+      {"name": "sheikhlimon-dotfiles", "path": "repos/related/sheikhlimon-dotfiles"}
+,
+      {"name": "waybar-privacy-dots", "path": "repos/related/waybar-privacy-dots"}
     ]
   }
 }}

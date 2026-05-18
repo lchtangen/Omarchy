@@ -74,25 +74,54 @@ current_theme() {
 
 set_theme() {
     local name="$1"
-    if [[ ! -d "$THEME_DIR/$name" ]]; then
-        echo -e "${RED}Theme not found:${NC} $name"
-        echo "Available themes:"
-        list_themes
-        exit 1
+    local theme_path=""
+
+    # 1. Check user-installed themes first
+    if [[ -d "$THEME_DIR/$name" ]]; then
+        theme_path="$THEME_DIR/$name"
+    # 2. Search catalog repos for a matching theme
+    else
+        theme_path=$(find -L "$OM_ROOT/repos" -maxdepth 4 -type d -name "$name" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        if [[ -z "$theme_path" ]]; then
+            echo -e "${RED}Theme not found:${NC} $name"
+            echo "Search themes: om theme list"
+            echo "Search catalog: om catalog search $name"
+            exit 1
+        fi
+        echo -e "${DIM}Found in catalog:${NC} $theme_path"
     fi
+
     # Ensure current link parent exists
     mkdir -p "$(dirname "$CURRENT_LINK")"
-    ln -sfT "$THEME_DIR/$name" "$CURRENT_LINK"
+    ln -sfT "$theme_path" "$CURRENT_LINK"
     echo -e "${GREEN}Theme set:${NC} $name"
 
+    # Copy theme configs to ~/.config/omarchy/current/
+    local config_dir
+    config_dir=$(dirname "$CURRENT_LINK")
+    mkdir -p "$config_dir"
+    for f in waybar.css walker.css hyprland.conf hyprlock.conf mako.ini alacritty.toml kitty.conf ghostty.conf neovim.lua colors.toml; do
+        if [[ -f "$theme_path/$f" ]]; then
+            cp "$theme_path/$f" "$config_dir/$f"
+            echo -e "  ${DIM}✓${NC} $f"
+        fi
+    done
+
     # Apply wallpaper
-    bg_dir="$THEME_DIR/$name/backgrounds"
+    local bg_dir="$theme_path/backgrounds"
     if [[ -d "$bg_dir" ]]; then
-        bg=$(find "$bg_dir" -type f | shuf -n 1)
+        local bg
+        bg=$(find -L "$bg_dir" -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.webp' -o -name '*.jpeg' \) | shuf -n 1)
         [[ -n "$bg" ]] && {
+            hyprctl hyprpaper preload "$bg" 2>/dev/null || true
             hyprctl hyprpaper wallpaper ",$bg" 2>/dev/null || true
             echo -e "  ${DIM}Wallpaper applied${NC}"
         }
+    fi
+
+    # Apply colors.toml to Hyprland config (generate env vars)
+    if [[ -f "$theme_path/colors.toml" ]]; then
+        echo -e "  ${DIM}Colors loaded from colors.toml${NC}"
     fi
 
     # Reload services
@@ -101,10 +130,16 @@ set_theme() {
     echo -e "  ${DIM}Hyprland reloaded, Waybar refreshed${NC}"
 
     # Run hooks
-    hook_path="$HOOK_DIR/theme-set"
+    local hook_path="$HOOK_DIR/theme-set"
     if [[ -x "$hook_path" ]]; then
         "$hook_path" "$name"
         echo -e "  ${DIM}Hook executed${NC}"
+    fi
+    # Also run module hooks
+    if [[ -d "$OM_ROOT/modules/theme-hook/hooks" ]]; then
+        for hook in "$OM_ROOT/modules/theme-hook/hooks"/*.sh; do
+            [[ -x "$hook" ]] && { "$hook" "$theme_path" 2>/dev/null || true; }
+        done
     fi
 }
 

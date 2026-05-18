@@ -10,7 +10,6 @@ Wants=omarchy-heal.timer
 [Service]
 Type=oneshot
 ExecStart=/home/arch/Omarchy/singularity/repair/fix-waybar.sh
-ExecStart=/home/arch/Omarchy/singularity/repair/fix-pacman.sh
 Environment=HOME=/home/arch
 
 [Install]

@@ -125,7 +125,7 @@ health_check() {
     fi
 
     # 7. Repos
-    repo_count=$(find "$OM_ROOT/repos" -name '.git' -type d 2>/dev/null | wc -l)
+    repo_count=$(find -L "$OM_ROOT/repos" -name '.git' -type d 2>/dev/null | wc -l)
     echo -e "  ${GREEN}✓${NC} $repo_count cloned repos"
 
     # 8. Disk space

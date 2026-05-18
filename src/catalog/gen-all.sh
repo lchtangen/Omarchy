@@ -8,11 +8,11 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 REPOS="$ROOT/repos"
 OUT="$ROOT/catalog/all.json"
 
-total=$(find "$REPOS" -mindepth 3 -maxdepth 4 -name '.git' -type d | wc -l)
+total=$(find -L "$REPOS" -mindepth 3 -maxdepth 4 -name '.git' -type d | wc -l)
 echo "{\"generated\": \"$(date -Iseconds)\", \"total\": $total, \"categories\": {" > "$OUT"
 
 first_cat=true
-for cat in themes tools configs curated; do
+for cat in themes tools configs curated related; do
   $first_cat || echo "," >> "$OUT"
   first_cat=false
   echo "  \"$cat\": {" >> "$OUT"
@@ -68,6 +68,18 @@ for cat in themes tools configs curated; do
         $first_repo || echo "," >> "$OUT"
         first_repo=false
         echo "      {\"name\": \"$name\", \"path\": \"repos/curated/$name\"}" >> "$OUT"
+      done
+      echo "    ]" >> "$OUT"
+      ;;
+    related)
+      echo "    \"all\": [" >> "$OUT"
+      first_repo=true
+      for dir in "$REPOS/related"/*/; do
+        [[ -d "$dir/.git" ]] || continue
+        name=$(basename "$dir")
+        $first_repo || echo "," >> "$OUT"
+        first_repo=false
+        echo "      {\"name\": \"$name\", \"path\": \"repos/related/$name\"}" >> "$OUT"
       done
       echo "    ]" >> "$OUT"
       ;;

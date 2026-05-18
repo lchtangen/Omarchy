@@ -28,6 +28,7 @@ ${BOLD}Commands:${NC}
   ${GREEN}update${NC}       Pull latest from all repos
   ${GREEN}extract${NC}      Extract assets from repos into dist/
   ${GREEN}version${NC}      Show version
+  ${GREEN}install${NC}      Install om CLI to /usr/local/bin
 
 ${BOLD}Examples:${NC}
   om catalog list          # List all repos
@@ -53,7 +54,7 @@ cmd_status() {
     echo "=== Omarchy Project Overview ==="
     printf "  %-25s %s\n" "Root" "$OM_ROOT"
     printf "  %-25s %s\n" "Version" "$OM_VERSION"
-    printf "  %-25s %s\n" "Repos" "$(find "$OM_ROOT/repos" -name '.git' -type d | wc -l)"
+    printf "  %-25s %s\n" "Repos" "$(find -L "$OM_ROOT/repos" -name '.git' -type d | wc -l)"
     printf "  %-25s %s\n" "Custom Dirs" "$(ls -d "$OM_ROOT"/*/ 2>/dev/null | grep -v repos | wc -l)"
     # Quick health
     echo
@@ -65,7 +66,7 @@ cmd_status() {
 
 cmd_update() {
     echo "Updating all repos..."
-    find "$OM_ROOT/repos" -name '.git' -type d -execdir sh -c 'echo "  $(basename "$(dirname "$(pwd)")")/$(basename "$(pwd)")" && git pull --ff-only 2>/dev/null || true' \;
+    find -L "$OM_ROOT/repos" -name '.git' -type d -execdir sh -c 'echo "  $(basename "$(dirname "$(pwd)")")/$(basename "$(pwd)")" && git pull --ff-only 2>/dev/null || true' \;
     echo "Done."
 }
 
@@ -78,6 +79,28 @@ cmd_version() {
     echo "Omarchy project at: $OM_ROOT"
 }
 
+cmd_install() {
+    local target="/usr/local/bin/om"
+    local src="$OM_ROOT/src/cli/om"
+
+    if [[ -L "$target" ]] || [[ -e "$target" ]]; then
+        local existing
+        existing=$(readlink -f "$target" 2>/dev/null || echo "unknown")
+        if [[ "$existing" == "$src" ]]; then
+            echo -e "${GREEN}Already installed:${NC} $target -> $src"
+            return 0
+        fi
+        echo -e "${YELLOW}Warning:${NC} $target already exists (points to $existing)"
+        echo -e "  Remove it first: sudo rm $target"
+        return 1
+    fi
+
+    echo "Installing om CLI..."
+    sudo ln -sf "$src" "$target"
+    echo -e "${GREEN}Installed:${NC} $target -> $src"
+    echo "You can now run 'om' from anywhere."
+}
+
 # --- Main dispatch ---
 CMD="${1:-help}"; shift 2>/dev/null || true
 
@@ -88,6 +111,7 @@ case "$CMD" in
     status|st)    cmd_status ;;
     update|up)    cmd_update ;;
     extract|ext)  cmd_extract ;;
+    install|i)    cmd_install ;;
     version|ver)  cmd_version ;;
     help|-h|--help) usage ;;
     *) echo -e "${RED}Unknown command:${NC} $CMD"; usage; exit 1 ;;

@@ -19,11 +19,12 @@ ${BOLD}Usage:${NC}
   om catalog ${GREEN}search${NC} <query>           # Search repos by name
   om catalog ${GREEN}show${NC} <repo-name>         # Show details for a specific repo
   om catalog ${GREEN}recommend${NC} [count]        # Recommend popular/mature repos
+  om catalog ${GREEN}browse${NC}                   # Interactive fzf browser
   om catalog ${GREEN}stats${NC}                    # Catalog statistics
 
 ${BOLD}Categories:${NC}
   themes/gui-apps   themes/waybar   themes/colorschemes   themes/gtk
-  tools             configs         curated
+  tools             configs         curated                related
 
 ${BOLD}Examples:${NC}
   om catalog list themes/colorschemes   # All color schemes
@@ -57,7 +58,7 @@ list_category() {
 list_all() {
     echo -e "${BOLD}=== Repo Catalog ===${NC}"
     shopt -s nullglob
-    for cat in themes tools configs curated; do
+    for cat in themes tools configs curated related; do
         case $cat in
             themes)
                 for sub in gui-apps waybar colorschemes gtk; do
@@ -95,7 +96,7 @@ search_repos() {
             echo -e "  ${CYAN}$name${NC}  ${DIM}$rel${NC}"
             found=$((found + 1))
         fi
-    done < <(find "$OM_ROOT/repos" -name '.git' -type d -print0 2>/dev/null)
+    done < <(find -L "$OM_ROOT/repos" -name '.git' -type d -print0 2>/dev/null)
 
     if (( found == 0 )); then
         echo -e "  ${YELLOW}No repos match '$query'${NC}"
@@ -107,7 +108,7 @@ search_repos() {
 show_repo() {
     local name="$1"
     # Find repo path by exact name (must contain .git to be a repo root)
-    path=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$name" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+    path=$(find -L "$OM_ROOT/repos" -maxdepth 4 -type d -name "$name" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
     if [[ -z "$path" ]]; then
         echo -e "${RED}Repo not found:${NC} $name"
         echo "Run 'om catalog list' to see all repos."
@@ -138,7 +139,7 @@ recommend() {
 
     echo -e "${GREEN}Top Configurations:${NC}"
     for dir in ArchRiot okimarchy omarchy-config omarchy-titus; do
-        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        p=$(find -L "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
         [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
     done
 
@@ -146,14 +147,14 @@ recommend() {
     for dir in aetheria omarchy-retropc-theme omarchy-one-dark-pro-theme \
                omarchy-coppernight-theme omarchy-lumon-theme omarchy-sapphire-theme \
                omarchy-evergarden omarchy-rose-pine omarchy-synthwave84-theme; do
-        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        p=$(find -L "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
         [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
     done
 
     echo -e "\n${GREEN}Top Tools:${NC}"
     for dir in wayscriber hyprmon ostt hyprwhspr awesome-omarchy-tui \
                omarchy-cleaner omarchy-background-changer; do
-        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        p=$(find -L "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
         [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
     done
 }
@@ -164,7 +165,7 @@ catalog_stats() {
     printf "  %-25s %s\n" "Category" "Count"
     printf "  %-25s %s\n" "----------------------" "-----"
     shopt -s nullglob
-    for cat in themes tools configs curated; do
+    for cat in themes tools configs curated related; do
         c=0
         case $cat in
             themes)
@@ -187,6 +188,28 @@ catalog_stats() {
     printf "  %-25s %d\n" "TOTAL" "$total"
     shopt -u nullglob
     echo -e "\n  ${DIM}Generated: $(date -r "$OM_ROOT/catalog/all.json" 2>/dev/null || echo 'N/A')${NC}"
+}
+
+browse_catalog() {
+    if ! command -v fzf &>/dev/null; then
+        echo -e "${RED}fzf not found.${NC} Install it: pacman -S fzf"
+        exit 1
+    fi
+    local choice
+    choice=$(find -L "$OM_ROOT/repos" -name '.git' -type d -exec dirname {} \; 2>/dev/null \
+        | while IFS= read -r dir; do
+            name=$(basename "$dir")
+            rel="${dir#$OM_ROOT/}"
+            printf "%-40s %s\n" "$name" "$rel"
+        done | sort | fzf --prompt="om catalog> " --header="Select a repo to view details" \
+            --preview="bash -c 'om catalog show {1}' 2>/dev/null || true" \
+            --preview-window=right:60%:wrap \
+            --height=80% --layout=reverse --border)
+    if [[ -n "$choice" ]]; then
+        local name
+        name=$(echo "$choice" | awk '{print $1}')
+        show_repo "$name"
+    fi
 }
 
 # --- Dispatch ---
@@ -214,6 +237,9 @@ case "$CMD" in
         ;;
     recommend|rec)
         recommend "${1:-10}"
+        ;;
+    browse|b)
+        browse_catalog
         ;;
     stats)
         catalog_stats
