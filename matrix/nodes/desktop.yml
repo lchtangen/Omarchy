@@ -1,0 +1,23 @@
+# Node: Desktop Workstation
+# Applied automatically via cortex detection
+
+node:
+  hostname: omarchy-desktop
+  form_factor: desktop
+  role: workstation
+
+displays:
+  primary: HDMI-A-1
+  secondary: eDP-1
+  resolution: "2560x1440@144"
+
+profiles:
+  - gaming
+  - development
+  - media
+
+features:
+  - waybar
+  - hyprlock
+  - walker
+  - mako

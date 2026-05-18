@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# om — Omarchy CLI Toolbox
+# Inspired by Chris Titus Tech's linutil — modular system management CLI
+set -euo pipefail
+
+OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
+OM_VERSION="1.0.0"
+
+# --- Colors ---
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+BLUE='\033[0;34m'; CYAN='\033[0;36m'; MAG='\033[0;35m'
+BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
+
+usage() {
+    cat <<EOF
+${BOLD}om — Omarchy CLI Toolbox${NC}  v$OM_VERSION
+
+${DIM}Inspired by linutil — manage themes, system, and catalog from one place.${NC}
+
+${BOLD}Usage:${NC}
+  om <command> [subcommand] [options]
+
+${BOLD}Commands:${NC}
+  ${GREEN}catalog${NC}      Browse and search the repo catalog (${CYAN}list${NC}|${CYAN}search${NC}|${CYAN}show${NC}|${CYAN}recommend${NC})
+  ${GREEN}theme${NC}        Theme management (${CYAN}list${NC}|${CYAN}set${NC}|${CYAN}current${NC}|${CYAN}install${NC})
+  ${GREEN}system${NC}       System management (${CYAN}info${NC}|${CYAN}health${NC}|${CYAN}stabilize${NC}|${CYAN}reload${NC})
+  ${GREEN}status${NC}       Show project overview
+  ${GREEN}update${NC}       Pull latest from all repos
+  ${GREEN}extract${NC}      Extract assets from repos into dist/
+  ${GREEN}version${NC}      Show version
+
+${BOLD}Examples:${NC}
+  om catalog list          # List all repos
+  om catalog search retro  # Search for retro-themed repos
+  om theme set tokyo-night # Apply a theme
+  om system health         # Run health checks
+  om status                # Show overview
+
+Run 'om <command> --help' for subcommand details.
+EOF
+}
+
+# --- Source subcommand modules ---
+cli_dir="$(dirname "$0")"
+
+cmd_catalog() { bash "$cli_dir/om-catalog" "$@"; }
+cmd_theme()   { bash "$cli_dir/om-theme" "$@"; }
+cmd_system()  { bash "$cli_dir/om-system" "$@"; }
+
+# --- Direct commands ---
+cmd_status() {
+    bash "$OM_ROOT/src/scripts/extract.sh" --status 2>/dev/null || true
+    echo "=== Omarchy Project Overview ==="
+    printf "  %-25s %s\n" "Root" "$OM_ROOT"
+    printf "  %-25s %s\n" "Version" "$OM_VERSION"
+    printf "  %-25s %s\n" "Repos" "$(find "$OM_ROOT/repos" -name '.git' -type d | wc -l)"
+    printf "  %-25s %s\n" "Custom Dirs" "$(ls -d "$OM_ROOT"/*/ 2>/dev/null | grep -v repos | wc -l)"
+    # Quick health
+    echo
+    echo "=== Quick Health ==="
+    for d in catalog modules templates tests nexus singularity hologram; do
+      [[ -d "$OM_ROOT/$d" ]] && echo -e "  ${GREEN}✓${NC} $d/" || echo -e "  ${RED}✗${NC} $d/"
+    done
+}
+
+cmd_update() {
+    echo "Updating all repos..."
+    find "$OM_ROOT/repos" -name '.git' -type d -execdir sh -c 'echo "  $(basename "$(dirname "$(pwd)")")/$(basename "$(pwd)")" && git pull --ff-only 2>/dev/null || true' \;
+    echo "Done."
+}
+
+cmd_extract() {
+    bash "$OM_ROOT/src/scripts/extract.sh"
+}
+
+cmd_version() {
+    echo "om v$OM_VERSION"
+    echo "Omarchy project at: $OM_ROOT"
+}
+
+# --- Main dispatch ---
+CMD="${1:-help}"; shift 2>/dev/null || true
+
+case "$CMD" in
+    catalog|cat)  cmd_catalog "$@" ;;
+    theme|th)     cmd_theme "$@" ;;
+    system|sys)   cmd_system "$@" ;;
+    status|st)    cmd_status ;;
+    update|up)    cmd_update ;;
+    extract|ext)  cmd_extract ;;
+    version|ver)  cmd_version ;;
+    help|-h|--help) usage ;;
+    *) echo -e "${RED}Unknown command:${NC} $CMD"; usage; exit 1 ;;
+esac

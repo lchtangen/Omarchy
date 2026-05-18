@@ -1,0 +1,21 @@
+{
+  "name": "filesystem-server",
+  "version": "1.0.0",
+  "type": "mcp",
+  "capabilities": {
+    "tools": {
+      "read_file": { "pattern": "**/*.{toml,css,conf,jsonc,lua,ini}" },
+      "write_file": { "pattern": "**/colors.toml" },
+      "search_files": {}
+    },
+    "resources": {
+      "theme_schema": "catalog/themes.json",
+      "tool_schema": "catalog/tools.json"
+    }
+  },
+  "transport": {
+    "type": "stdio",
+    "command": "node",
+    "args": ["nexus/mcp-servers/custom/filesystem-bridge.js"]
+  }
+}

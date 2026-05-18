@@ -1,0 +1,90 @@
+{
+  "gui-apps": [
+    {
+      "name": "omarchist",
+      "stars": 695,
+      "url": "https://github.com/tahayvr/omarchist",
+      "lang": "Rust",
+      "description": "GUI app for Omarchy Linux — theme designer"
+    },
+    {
+      "name": "aether",
+      "stars": 563,
+      "url": "https://github.com/bjarneo/aether",
+      "lang": "Svelte",
+      "description": "Native Omarchy theming support with GUI"
+    },
+    {
+      "name": "tema",
+      "stars": 107,
+      "url": "https://github.com/bjarneo/tema",
+      "lang": "JavaScript",
+      "description": "Omarchy theming the easy way"
+    },
+    {
+      "name": "omarchy-theme-builder",
+      "stars": 25,
+      "url": "https://github.com/gitcoder89431/omarchy-theme-builder",
+      "lang": "Svelte",
+      "description": "Interactive real-time theme builder"
+    }
+  ],
+  "waybar": [
+    {
+      "name": "waybar-themes",
+      "stars": 401,
+      "url": "https://github.com/HANCORE-linux/waybar-themes",
+      "lang": "CSS",
+      "description": "Large collection of Waybar themes inspired by Omarchy"
+    },
+    {
+      "name": "minimal-waybar-themes",
+      "stars": 172,
+      "url": "https://github.com/atif-1402/minimal-waybar-themes",
+      "lang": "CSS",
+      "description": "Minimal Waybar themes for Omarchy"
+    },
+    {
+      "name": "Adsovetzky-Omarchy-s-Waybar",
+      "stars": 0,
+      "url": "https://github.com/adsovetzky/Adsovetzky-Omarchy-s-Waybar",
+      "lang": "CSS",
+      "description": "Custom Omarchy Waybar setup with multiple variants"
+    }
+  ],
+  "colorschemes": [
+    { "name": "omarchy-ash-theme", "stars": 35, "url": "https://github.com/bjarneo/omarchy-ash-theme", "description": "Ash colored theme" },
+    { "name": "omarchy-futurism-theme", "stars": 30, "url": "https://github.com/bjarneo/omarchy-futurism-theme", "description": "Futuristic theme" },
+    { "name": "omarchy-nes-theme", "stars": 20, "url": "https://github.com/bjarneo/omarchy-nes-theme", "description": "Retro NES theme" },
+    { "name": "omarchy-sakura-theme", "stars": 13, "url": "https://github.com/bjarneo/omarchy-sakura-theme", "description": "Cherry blossom inspired theme" },
+    { "name": "omarchy-pulsar-theme", "stars": 12, "url": "https://github.com/bjarneo/omarchy-pulsar-theme", "description": "Cosmic dark theme" },
+    { "name": "omarchy-firesky-theme", "stars": 11, "url": "https://github.com/bjarneo/omarchy-firesky-theme", "description": "Fire-lit sky theme" },
+    { "name": "omarchy-aura-theme", "stars": 11, "url": "https://github.com/bjarneo/omarchy-aura-theme", "description": "Aura theme" },
+    { "name": "omarchy-monokai-theme", "stars": 10, "url": "https://github.com/bjarneo/omarchy-monokai-theme", "description": "Monokai Pro palette" },
+    { "name": "omarchy-one-dark-pro-theme", "stars": 44, "url": "https://github.com/sc0ttman/omarchy-one-dark-pro-theme", "description": "One Dark Pro theme" },
+    { "name": "omarchy-retropc-theme", "stars": 65, "url": "https://github.com/rondilley/omarchy-retropc-theme", "description": "Retro PC terminal aesthetic" },
+    { "name": "omarchy-retro-fallout-theme", "stars": 0, "url": "https://github.com/zdravkodanailov7/omarchy-retro-fallout-theme", "description": "Retro Fallout theme" },
+    { "name": "omarchy-emacs-org-mode-theme", "stars": 0, "url": "https://github.com/Grigaliunas/omarchy-emacs-org-mode-theme", "description": "Emacs Org Mode aesthetics" },
+    { "name": "omarchy-akane-theme", "stars": 0, "url": "https://github.com/Grenish/omarchy-akane-theme", "description": "Akane theme" },
+    { "name": "omarchy-batou-theme", "stars": 0, "url": "https://github.com/HANCORE-linux/omarchy-batou-theme", "description": "Batou theme" },
+    { "name": "omarchy-blackgold-theme", "stars": 0, "url": "https://github.com/HANCORE-linux/omarchy-blackgold-theme", "description": "Black & Gold theme" },
+    { "name": "omarchy-blackturq-theme", "stars": 0, "url": "https://github.com/HANCORE-linux/omarchy-blackturq-theme", "description": "Black & Turquoise theme" },
+    { "name": "omarchy-coppernight-theme", "stars": 0, "url": "https://github.com/hembramnishant50-glitch/omarchy-coppernight-theme", "description": "Copper Night theme" },
+    { "name": "omarchy-ibm-theme", "stars": 0, "url": "https://github.com/DimaZbr/omarchy-ibm-theme", "description": "IBM/ThinkPad inspired theme" },
+    { "name": "omarchy-lumon-theme", "stars": 0, "url": "https://github.com/OldJobobo/omarchy-lumon-theme", "description": "Lumon (Severance) theme" },
+    { "name": "omarchy-miasma-theme", "stars": 0, "url": "https://github.com/OldJobobo/omarchy-miasma-theme", "description": "Miasma dark theme" },
+    { "name": "omarchy-midnight-theme", "stars": 0, "url": "https://github.com/JaxonWright/omarchy-midnight-theme", "description": "Midnight theme" },
+    { "name": "omarchy-solitude-theme", "stars": 0, "url": "https://github.com/HANCORE-linux/omarchy-solitude-theme", "description": "Solitude theme" },
+    { "name": "omarchy-void-theme", "stars": 0, "url": "https://github.com/vyrx-dev/omarchy-void-theme", "description": "Void theme" },
+    { "name": "aetheria", "stars": 0, "url": "https://github.com/JJDizz1L/aetheria", "description": "Aetheria theme" }
+  ],
+  "gtk": [
+    {
+      "name": "omarchy-gtk-theme",
+      "stars": 9,
+      "url": "https://github.com/bjarneo/omarchy-gtk-theme",
+      "lang": "CSS",
+      "description": "Universal GTK theme for Omarchy"
+    }
+  ]
+}

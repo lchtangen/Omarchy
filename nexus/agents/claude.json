@@ -1,0 +1,18 @@
+{
+  "name": "claude-code-agent",
+  "version": "1.0.0",
+  "model": "claude-sonnet-4-20250514",
+  "system_prompt": "You are an expert Omarchy/Hyprland developer. Help with system config, theme design, and Arch Linux optimization.",
+  "tools": {
+    "enabled": ["bash", "edit", "read", "grep", "glob"]
+  },
+  "mcp_servers": [
+    "nexus/mcp-servers/filesystem.json",
+    "nexus/mcp-servers/github.json"
+  ],
+  "permissions": {
+    "allow_file_access": true,
+    "allow_network": true,
+    "allow_execution": true
+  }
+}

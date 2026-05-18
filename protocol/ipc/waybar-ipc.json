@@ -1,0 +1,28 @@
+// Waybar IPC message format
+// Waybar reads from stdin as JSON lines
+// Sends signals via SIGUSR1/SIGUSR2 or stdin
+
+{
+  "ipc": {
+    "version": 1,
+    "type": "waybar",
+    "events": {
+      "refresh": { "signal": "SIGUSR2", "description": "Reload config" },
+      "toggle": { "signal": "SIGUSR1", "description": "Toggle hidden" },
+      "module_click": {
+        "format": {
+          "name": "string",
+          "instance": "string?",
+          "button": "int",
+          "x": "int",
+          "y": "int"
+        }
+      }
+    },
+    "stdin_commands": [
+      { "command": "reload", "action": "refresh" },
+      { "command": "hide", "action": "toggle_hidden" },
+      { "command": "show", "action": "toggle_hidden" }
+    ]
+  }
+}

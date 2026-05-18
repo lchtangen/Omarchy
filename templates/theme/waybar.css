@@ -1,0 +1,28 @@
+/* Waybar theme — replace colors to match palette */
+* {
+  border: none;
+  border-radius: 0;
+  font-family: JetBrainsMono Nerd Font;
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: rgba(26, 27, 38, 0.85);
+  color: #c0caf5;
+}
+
+#workspaces button {
+  padding: 0 8px;
+  background: transparent;
+  color: #a9b1d6;
+}
+
+#workspaces button.active {
+  background: #7aa2f7;
+  color: #1a1b26;
+}
+
+#clock, #battery, #cpu, #memory, #network, #pulseaudio {
+  padding: 0 10px;
+}

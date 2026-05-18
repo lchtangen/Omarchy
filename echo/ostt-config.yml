@@ -1,0 +1,49 @@
+# Echo OSTT Integration
+# Post-processing actions and hotkey configuration
+# Inspired by OSTT's processing actions and hyprwhisper's IPC signals
+
+hotkey:
+  record: "Ctrl+Shift+Space"
+  popup: "Ctrl+Shift+P"
+
+processing:
+  default_action: type
+  actions:
+    - name: type
+      description: Type transcribed text at cursor
+      command: "wtype {text}"
+
+    - name: clipboard
+      description: Copy to clipboard
+      command: "wl-copy {text}"
+
+    - name: command
+      description: Execute as desktop command
+      command: "echo/commands/process.sh {text}"
+
+    - name: notify
+      description: Show as notification
+      command: "notify-send 'Echo' '{text}'"
+
+providers:
+  - name: whisper
+    type: local
+    model: base
+    language: en
+
+  - name: groq
+    type: api
+    model: whisper-large-v3
+    key_env: GROQ_API_KEY
+
+  - name: deepgram
+    type: api
+    model: nova-2
+    key_env: DEEPGRAM_API_KEY
+
+keyword_boosting:
+  - "terminal"
+  - "workspace"
+  - "screenshot"
+  - "lock"
+  - "theme"

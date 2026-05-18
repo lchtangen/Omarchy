@@ -1,0 +1,27 @@
+{
+  "servers": [
+    {
+      "name": "omarchy-fs",
+      "description": "Filesystem access for Omarchy themes and configs",
+      "transport": "stdio",
+      "command": "node",
+      "args": ["protocol/mcp/tools/fs-bridge.mjs"],
+      "capabilities": {
+        "read": ["toml", "json", "css", "lua", "conf", "ini"],
+        "write": ["toml"],
+        "search": true
+      }
+    },
+    {
+      "name": "omarchy-catalog",
+      "description": "Query the Omarchy catalog (themes, tools, configs)",
+      "transport": "stdio",
+      "command": "python3",
+      "args": ["-m", "json.tool", "catalog/themes.json"],
+      "capabilities": {
+        "read": ["json"],
+        "search": true
+      }
+    }
+  ]
+}

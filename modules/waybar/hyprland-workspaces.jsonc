@@ -1,0 +1,26 @@
+{
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "warp-on-scroll": false,
+    "format": "{name}",
+    "format-icons": {
+      "1": "󰈹",
+      "2": "󰨞",
+      "3": "󰙯",
+      "4": "󰓦",
+      "5": "󰓫",
+      "6": "󰎆",
+      "7": "󰋗",
+      "8": "󰊠",
+      "9": "󰵮",
+      "urgent": "",
+      "empty": "",
+      "default": ""
+    },
+    "persistent-workspaces": {
+      "eDP-1": [1, 2, 3, 4, 5],
+      "HDMI-A-1": [6, 7, 8, 9]
+    }
+  }
+}

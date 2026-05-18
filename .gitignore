@@ -1,7 +1,9 @@
 # cloned repos (managed by src/scripts/clone-all.sh)
+repos
 repos/
 
 # extracted outputs
+dist
 dist/
 
 # OS files

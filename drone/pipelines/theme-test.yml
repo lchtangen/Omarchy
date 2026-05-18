@@ -1,0 +1,35 @@
+name: Theme Validation
+
+on:
+  pull_request:
+    paths: ["repos/themes/**"]
+  push:
+    paths: ["repos/themes/**"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate colors.toml
+        run: |
+          errors=0
+          for theme in repos/themes/colorschemes/*/; do
+            if [ ! -f "$theme/colors.toml" ]; then
+              echo "MISSING colors.toml in $(basename $theme)"
+              errors=$((errors + 1))
+            fi
+          done
+          exit $errors
+
+      - name: Run catalog consistency check
+        run: python3 -c "
+          import json
+          cats = json.load(open('catalog/themes.json'))
+          total = sum(len(v) for v in cats.values())
+          print(f'Catalog entries: {total}')
+        "
+
+      - name: Check directory structure
+        run: make lint

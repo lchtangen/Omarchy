@@ -1,0 +1,47 @@
+# Prism Color Schema Registry
+# Maps Omarchy color names to CSS/rgba formats for dynamic theming
+
+formats:
+  css:
+    template: "--omx-{name}: {hex};"
+    example: "--omx-primary: #7aa2f7;"
+
+  rgba:
+    template: "rgba({r}, {g}, {b}, {a})"
+    example: "rgba(122, 162, 247, 1.0)"
+
+  hyprland:
+    template: "rgb({hex})"
+    example: "rgb(7aa2f7)"
+
+color_roles:
+  - name: primary
+    description: Main accent color
+    fallback: "#7aa2f7"
+  - name: secondary
+    description: Secondary accent
+    fallback: "#bb9af7"
+  - name: background
+    description: Background
+    fallback: "#1a1b26"
+  - name: foreground
+    description: Text foreground
+    fallback: "#c0caf5"
+  - name: surface
+    description: Surface/card background
+    fallback: "#24283b"
+  - name: border
+    description: Border color
+    fallback: "#3b4261"
+  - name: error
+    description: Error/danger color
+    fallback: "#f7768e"
+  - name: warning
+    description: Warning color
+    fallback: "#e0af68"
+  - name: success
+    description: Success color
+    fallback: "#9ece6a"
+  - name: info
+    description: Info color
+    fallback: "#7dcfff"

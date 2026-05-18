@@ -1,0 +1,28 @@
+# Core Dependencies
+# Omarchy base system packages
+
+pacman:
+  - hyprland
+  - waybar
+  - walker
+  - mako
+  - hyprlock
+  - hyprpaper
+  - swayosd
+  - alacritty
+  - neovim
+  - zsh
+  - btop
+  - lazygit
+  - fzf
+  - ripgrep
+  - zoxide
+  - tmux
+  - chromium
+  - git
+  - base-devel
+
+yay:
+  - omarchy
+  - hyprshot
+  - wlogout

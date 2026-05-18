@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+# om theme — Theme management for Omarchy
+set -euo pipefail
+
+OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
+THEME_DIR="${OMARCHY_THEME_DIR:-$HOME/.config/omarchy/themes}"
+CURRENT_LINK="${OMARCHY_CURRENT:-$HOME/.config/omarchy/current/theme}"
+HOOK_DIR="${OMARCHY_HOOK_DIR:-$HOME/.config/omarchy/hooks}"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+BLUE='\033[0;34m'; CYAN='\033[0;36m'; NC='\033[0m'
+BOLD='\033[1m'; DIM='\033[2m'
+
+usage() {
+    cat <<EOF
+${BOLD}om theme${NC} — Theme management for Omarchy
+
+${BOLD}Usage:${NC}
+  om theme ${GREEN}list${NC}                  # List available themes
+  om theme ${GREEN}set${NC} <name>            # Apply a theme
+  om theme ${GREEN}current${NC}               # Show current theme
+  om theme ${GREEN}install${NC} <url>         # Install a theme from git URL
+  om theme ${GREEN}remove${NC} <name>         # Remove a theme
+  om theme ${GREEN}preview${NC} <name>        # Show theme preview info
+
+${BOLD}Examples:${NC}
+  om theme list                       # See all themes
+  om theme set tokyo-night            # Apply Tokyo Night
+  om theme current                    # See active theme
+EOF
+}
+
+list_themes() {
+    echo -e "${BOLD}Available themes:${NC}"
+    if [[ ! -d "$THEME_DIR" ]]; then
+        echo -e "  ${YELLOW}No themes directory found at $THEME_DIR${NC}"
+        echo "  Install themes: om theme install <git-url>"
+        return
+    fi
+    count=0
+    for t in "$THEME_DIR"/*/; do
+        [[ -d "$t" ]] || continue
+        name=$(basename "$t")
+        current=""
+        if [[ -L "$CURRENT_LINK" ]] && [[ "$(readlink "$CURRENT_LINK")" == "$(cd "$t" && pwd)" ]]; then
+            current=" ${GREEN}← active${NC}"
+        fi
+        echo -e "  ${CYAN}$name${NC}$current"
+        count=$((count + 1))
+    done
+    echo "Total: $count"
+}
+
+current_theme() {
+    if [[ -L "$CURRENT_LINK" ]]; then
+        target=$(readlink "$CURRENT_LINK")
+        name=$(basename "$target")
+        echo -e "${GREEN}$name${NC}"
+        if [[ -f "$target/colors.toml" ]]; then
+            echo -e "  ${DIM}Colors:${NC} $(grep -c '=' "$target/colors.toml" 2>/dev/null || echo 0) vars"
+        fi
+        if [[ -d "$target/backgrounds" ]]; then
+            echo -e "  ${DIM}Backgrounds:${NC} $(find "$target/backgrounds" -type f | wc -l) files"
+        fi
+        # Show which config files this theme provides
+        for f in waybar.css walker.css hyprland.conf hyprlock.conf mako.ini alacritty.toml neovim.lua; do
+            [[ -f "$target/$f" ]] && echo -e "  ${DIM}✓${NC} $f"
+        done
+    else
+        echo -e "${YELLOW}No theme set${NC}"
+        echo "Set one: om theme set <name>"
+    fi
+}
+
+set_theme() {
+    local name="$1"
+    if [[ ! -d "$THEME_DIR/$name" ]]; then
+        echo -e "${RED}Theme not found:${NC} $name"
+        echo "Available themes:"
+        list_themes
+        exit 1
+    fi
+    # Ensure current link parent exists
+    mkdir -p "$(dirname "$CURRENT_LINK")"
+    ln -sfT "$THEME_DIR/$name" "$CURRENT_LINK"
+    echo -e "${GREEN}Theme set:${NC} $name"
+
+    # Apply wallpaper
+    bg_dir="$THEME_DIR/$name/backgrounds"
+    if [[ -d "$bg_dir" ]]; then
+        bg=$(find "$bg_dir" -type f | shuf -n 1)
+        [[ -n "$bg" ]] && {
+            hyprctl hyprpaper wallpaper ",$bg" 2>/dev/null || true
+            echo -e "  ${DIM}Wallpaper applied${NC}"
+        }
+    fi
+
+    # Reload services
+    hyprctl reload 2>/dev/null || true
+    pkill -USR2 waybar 2>/dev/null || true
+    echo -e "  ${DIM}Hyprland reloaded, Waybar refreshed${NC}"
+
+    # Run hooks
+    hook_path="$HOOK_DIR/theme-set"
+    if [[ -x "$hook_path" ]]; then
+        "$hook_path" "$name"
+        echo -e "  ${DIM}Hook executed${NC}"
+    fi
+}
+
+install_theme() {
+    local url="${1:-}"
+    [[ -z "$url" ]] && { echo "Usage: om theme install <git-url>"; exit 1; }
+    name=$(basename "$url" .git)
+    mkdir -p "$THEME_DIR"
+    if [[ -d "$THEME_DIR/$name" ]]; then
+        echo -e "${YELLOW}Theme already installed:${NC} $name"
+        exit 1
+    fi
+    echo "Installing $name..."
+    git clone "$url" "$THEME_DIR/$name"
+    echo -e "${GREEN}Installed:${NC} $name"
+    echo "Apply with: om theme set $name"
+}
+
+remove_theme() {
+    local name="${1:-}"
+    [[ -z "$name" ]] && { echo "Usage: om theme remove <name>"; exit 1; }
+    if [[ ! -d "$THEME_DIR/$name" ]]; then
+        echo -e "${RED}Theme not found:${NC} $name"
+        exit 1
+    fi
+    # Can't remove active theme
+    if [[ -L "$CURRENT_LINK" ]] && [[ "$(readlink "$CURRENT_LINK")" == "$(cd "$THEME_DIR/$name" && pwd)" ]]; then
+        echo -e "${YELLOW}Cannot remove active theme. Switch first.${NC}"
+        exit 1
+    fi
+    rm -rf "$THEME_DIR/$name"
+    echo -e "${GREEN}Removed:${NC} $name"
+}
+
+preview_theme() {
+    local name="${1:-}"
+    [[ -z "$name" ]] && { echo "Usage: om theme preview <name>"; exit 1; }
+    dir="$THEME_DIR/$name"
+    [[ ! -d "$dir" ]] && { echo -e "${RED}Theme not found:${NC} $name"; exit 1; }
+
+    echo -e "${BOLD}=== Theme: $name ===${NC}"
+    echo -e "  ${DIM}Path:${NC}     $dir"
+    [[ -f "$dir/preview.png" ]] && echo -e "  ${DIM}Preview:${NC}  $dir/preview.png"
+
+    # Color info
+    if [[ -f "$dir/colors.toml" ]]; then
+        echo -e "\n${BOLD}Colors:${NC}"
+        head -12 "$dir/colors.toml" | while IFS= read -r line; do
+            echo -e "  ${DIM}$line${NC}"
+        done
+        total=$(wc -l < "$dir/colors.toml")
+        (( total > 12 )) && echo -e "  ${DIM}... ($(( total - 12 )) more)${NC}"
+    fi
+
+    # Config files
+    echo -e "\n${BOLD}Config files:${NC}"
+    for f in waybar.css walker.css hyprland.conf hyprlock.conf mako.ini alacritty.toml kitty.conf ghostty.conf neovim.lua vscode.json btop.theme swayosd.css chromium.theme icons.theme; do
+        [[ -f "$dir/$f" ]] && echo -e "  ${GREEN}✓${NC} $f"
+    done
+}
+
+# --- Dispatch ---
+CMD="${1:-help}"; shift 2>/dev/null || true
+
+case "$CMD" in
+    list|ls)     list_themes ;;
+    set|apply)   [[ -z "${1:-}" ]] && { echo "Usage: om theme set <name>"; exit 1; }
+                 set_theme "$1" ;;
+    current|cur) current_theme ;;
+    install|i)   install_theme "${1:-}" ;;
+    remove|rm)   remove_theme "${1:-}" ;;
+    preview|pr)  preview_theme "${1:-}" ;;
+    help|-h|--help) usage ;;
+    *) echo "Unknown theme subcommand: $CMD"; usage; exit 1 ;;
+esac

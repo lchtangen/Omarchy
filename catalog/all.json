@@ -1,0 +1,415 @@
+{"generated": "2026-05-18T06:30:51+02:00", "total": 206, "categories": {
+  "themes": {
+    "gui-apps": [
+      {"name": "aether", "path": "repos/themes/gui-apps/aether"}
+,
+      {"name": "omarchist", "path": "repos/themes/gui-apps/omarchist"}
+,
+      {"name": "omarchy-theme-builder", "path": "repos/themes/gui-apps/omarchy-theme-builder"}
+,
+      {"name": "omarchy-theme-builder-gitcoder", "path": "repos/themes/gui-apps/omarchy-theme-builder-gitcoder"}
+,
+      {"name": "omarchy-theme-builder-jgk", "path": "repos/themes/gui-apps/omarchy-theme-builder-jgk"}
+,
+      {"name": "tema", "path": "repos/themes/gui-apps/tema"}
+    ]
+,
+    "waybar": [
+      {"name": "Adsovetzky-Omarchy-s-Waybar", "path": "repos/themes/waybar/Adsovetzky-Omarchy-s-Waybar"}
+,
+      {"name": "minimal-waybar-themes", "path": "repos/themes/waybar/minimal-waybar-themes"}
+,
+      {"name": "waybar-themes", "path": "repos/themes/waybar/waybar-themes"}
+    ]
+,
+    "colorschemes": [
+      {"name": "aetheria", "path": "repos/themes/colorschemes/aetheria"}
+,
+      {"name": "dracula-omarchy", "path": "repos/themes/colorschemes/dracula-omarchy"}
+,
+      {"name": "F1-omarchy", "path": "repos/themes/colorschemes/F1-omarchy"}
+,
+      {"name": "omarchy-aamis-theme", "path": "repos/themes/colorschemes/omarchy-aamis-theme"}
+,
+      {"name": "omarchy-agentuity-theme", "path": "repos/themes/colorschemes/omarchy-agentuity-theme"}
+,
+      {"name": "omarchy-akane-theme", "path": "repos/themes/colorschemes/omarchy-akane-theme"}
+,
+      {"name": "omarchy-alabaster-theme", "path": "repos/themes/colorschemes/omarchy-alabaster-theme"}
+,
+      {"name": "omarchy-all-hallows-eve-theme", "path": "repos/themes/colorschemes/omarchy-all-hallows-eve-theme"}
+,
+      {"name": "omarchy-amberbyte-theme", "path": "repos/themes/colorschemes/omarchy-amberbyte-theme"}
+,
+      {"name": "omarchy-anonymous-theme", "path": "repos/themes/colorschemes/omarchy-anonymous-theme"}
+,
+      {"name": "omarchy-arc-blueberry", "path": "repos/themes/colorschemes/omarchy-arc-blueberry"}
+,
+      {"name": "omarchy-archriot-theme", "path": "repos/themes/colorschemes/omarchy-archriot-theme"}
+,
+      {"name": "omarchy-ash-theme", "path": "repos/themes/colorschemes/omarchy-ash-theme"}
+,
+      {"name": "omarchy-aura-theme", "path": "repos/themes/colorschemes/omarchy-aura-theme"}
+,
+      {"name": "omarchy-ayaka-theme", "path": "repos/themes/colorschemes/omarchy-ayaka-theme"}
+,
+      {"name": "omarchy-ayu-dark-theme", "path": "repos/themes/colorschemes/omarchy-ayu-dark-theme"}
+,
+      {"name": "omarchy-ayu-light-theme", "path": "repos/themes/colorschemes/omarchy-ayu-light-theme"}
+,
+      {"name": "omarchy-ayumirage", "path": "repos/themes/colorschemes/omarchy-ayumirage"}
+,
+      {"name": "omarchy-azure-glow-theme", "path": "repos/themes/colorschemes/omarchy-azure-glow-theme"}
+,
+      {"name": "omarchy-batou-theme", "path": "repos/themes/colorschemes/omarchy-batou-theme"}
+,
+      {"name": "omarchy-bauhaus-theme", "path": "repos/themes/colorschemes/omarchy-bauhaus-theme"}
+,
+      {"name": "omarchy-blackgold-theme", "path": "repos/themes/colorschemes/omarchy-blackgold-theme"}
+,
+      {"name": "omarchy-blackmoney-theme", "path": "repos/themes/colorschemes/omarchy-blackmoney-theme"}
+,
+      {"name": "omarchy-blackturq-theme", "path": "repos/themes/colorschemes/omarchy-blackturq-theme"}
+,
+      {"name": "omarchy-blueridge-dark-theme", "path": "repos/themes/colorschemes/omarchy-blueridge-dark-theme"}
+,
+      {"name": "omarchy-c64-theme", "path": "repos/themes/colorschemes/omarchy-c64-theme"}
+,
+      {"name": "omarchy-catppuccin-mocha-theme", "path": "repos/themes/colorschemes/omarchy-catppuccin-mocha-theme"}
+,
+      {"name": "omarchy-cobalt2-theme", "path": "repos/themes/colorschemes/omarchy-cobalt2-theme"}
+,
+      {"name": "omarchy-coppernight-theme", "path": "repos/themes/colorschemes/omarchy-coppernight-theme"}
+,
+      {"name": "omarchy-crimson-gold-theme", "path": "repos/themes/colorschemes/omarchy-crimson-gold-theme"}
+,
+      {"name": "omarchy-delorean-theme", "path": "repos/themes/colorschemes/omarchy-delorean-theme"}
+,
+      {"name": "omarchy-doom-theme", "path": "repos/themes/colorschemes/omarchy-doom-theme"}
+,
+      {"name": "omarchy-dracula-theme", "path": "repos/themes/colorschemes/omarchy-dracula-theme"}
+,
+      {"name": "omarchy-elysian-theme", "path": "repos/themes/colorschemes/omarchy-elysian-theme"}
+,
+      {"name": "omarchy-emacs-org-mode-theme", "path": "repos/themes/colorschemes/omarchy-emacs-org-mode-theme"}
+,
+      {"name": "omarchy-ember-n-ash-theme", "path": "repos/themes/colorschemes/omarchy-ember-n-ash-theme"}
+,
+      {"name": "omarchy-everblush-theme", "path": "repos/themes/colorschemes/omarchy-everblush-theme"}
+,
+      {"name": "omarchy-evergarden", "path": "repos/themes/colorschemes/omarchy-evergarden"}
+,
+      {"name": "omarchy-felix-theme", "path": "repos/themes/colorschemes/omarchy-felix-theme"}
+,
+      {"name": "omarchy-fiery-ocean-theme", "path": "repos/themes/colorschemes/omarchy-fiery-ocean-theme"}
+,
+      {"name": "omarchy-fireside-theme", "path": "repos/themes/colorschemes/omarchy-fireside-theme"}
+,
+      {"name": "omarchy-firesky-theme", "path": "repos/themes/colorschemes/omarchy-firesky-theme"}
+,
+      {"name": "omarchy-flexoki-dark-theme", "path": "repos/themes/colorschemes/omarchy-flexoki-dark-theme"}
+,
+      {"name": "omarchy-flexoki-light-theme", "path": "repos/themes/colorschemes/omarchy-flexoki-light-theme"}
+,
+      {"name": "omarchy-forest-green-theme", "path": "repos/themes/colorschemes/omarchy-forest-green-theme"}
+,
+      {"name": "omarchy-frost-theme", "path": "repos/themes/colorschemes/omarchy-frost-theme"}
+,
+      {"name": "omarchy-futurism-theme", "path": "repos/themes/colorschemes/omarchy-futurism-theme"}
+,
+      {"name": "omarchy-github-light-theme", "path": "repos/themes/colorschemes/omarchy-github-light-theme"}
+,
+      {"name": "omarchy-gold-rush-theme", "path": "repos/themes/colorschemes/omarchy-gold-rush-theme"}
+,
+      {"name": "omarchy-green-garden-theme", "path": "repos/themes/colorschemes/omarchy-green-garden-theme"}
+,
+      {"name": "omarchy-gtk-theme", "path": "repos/themes/colorschemes/omarchy-gtk-theme"}
+,
+      {"name": "omarchy-harbordark-theme", "path": "repos/themes/colorschemes/omarchy-harbordark-theme"}
+,
+      {"name": "omarchy-harbor-theme", "path": "repos/themes/colorschemes/omarchy-harbor-theme"}
+,
+      {"name": "omarchy-hollow-knight-theme", "path": "repos/themes/colorschemes/omarchy-hollow-knight-theme"}
+,
+      {"name": "omarchy-hook-theme-set-ex", "path": "repos/themes/colorschemes/omarchy-hook-theme-set-ex"}
+,
+      {"name": "omarchy-ibm-theme", "path": "repos/themes/colorschemes/omarchy-ibm-theme"}
+,
+      {"name": "omarchy-inkypinky-theme", "path": "repos/themes/colorschemes/omarchy-inkypinky-theme"}
+,
+      {"name": "omarchy-kanagawa-dragon-theme", "path": "repos/themes/colorschemes/omarchy-kanagawa-dragon-theme"}
+,
+      {"name": "omarchy-kimiko-theme", "path": "repos/themes/colorschemes/omarchy-kimiko-theme"}
+,
+      {"name": "omarchy-lumon-theme", "path": "repos/themes/colorschemes/omarchy-lumon-theme"}
+,
+      {"name": "omarchy-mars-theme", "path": "repos/themes/colorschemes/omarchy-mars-theme"}
+,
+      {"name": "omarchy-matte-black", "path": "repos/themes/colorschemes/omarchy-matte-black"}
+,
+      {"name": "omarchy-mechanoonna-theme", "path": "repos/themes/colorschemes/omarchy-mechanoonna-theme"}
+,
+      {"name": "omarchy-miasma-theme", "path": "repos/themes/colorschemes/omarchy-miasma-theme"}
+,
+      {"name": "omarchy-midnight-theme", "path": "repos/themes/colorschemes/omarchy-midnight-theme"}
+,
+      {"name": "omarchy-milkmatcha-light-theme", "path": "repos/themes/colorschemes/omarchy-milkmatcha-light-theme"}
+,
+      {"name": "omarchy-monochrome-theme", "path": "repos/themes/colorschemes/omarchy-monochrome-theme"}
+,
+      {"name": "omarchy-monokai-dark-theme", "path": "repos/themes/colorschemes/omarchy-monokai-dark-theme"}
+,
+      {"name": "omarchy-monokai-theme", "path": "repos/themes/colorschemes/omarchy-monokai-theme"}
+,
+      {"name": "omarchy-moodpeak-theme", "path": "repos/themes/colorschemes/omarchy-moodpeak-theme"}
+,
+      {"name": "omarchy-motivator-theme", "path": "repos/themes/colorschemes/omarchy-motivator-theme"}
+,
+      {"name": "omarchy-nagai-twilight-theme", "path": "repos/themes/colorschemes/omarchy-nagai-twilight-theme"}
+,
+      {"name": "omarchy-nes-theme", "path": "repos/themes/colorschemes/omarchy-nes-theme"}
+,
+      {"name": "omarchy-night-owl-theme", "path": "repos/themes/colorschemes/omarchy-night-owl-theme"}
+,
+      {"name": "omarchy-obsidian-theme", "path": "repos/themes/colorschemes/omarchy-obsidian-theme"}
+,
+      {"name": "omarchy-one-dark-pro-theme", "path": "repos/themes/colorschemes/omarchy-one-dark-pro-theme"}
+,
+      {"name": "omarchy-osaka-jade-theme", "path": "repos/themes/colorschemes/omarchy-osaka-jade-theme"}
+,
+      {"name": "omarchy-pina-theme", "path": "repos/themes/colorschemes/omarchy-pina-theme"}
+,
+      {"name": "omarchy-pulsar-theme", "path": "repos/themes/colorschemes/omarchy-pulsar-theme"}
+,
+      {"name": "omarchy-pure-latin-theme", "path": "repos/themes/colorschemes/omarchy-pure-latin-theme"}
+,
+      {"name": "omarchy-purplewave-theme", "path": "repos/themes/colorschemes/omarchy-purplewave-theme"}
+,
+      {"name": "omarchy-retro-fallout-theme", "path": "repos/themes/colorschemes/omarchy-retro-fallout-theme"}
+,
+      {"name": "omarchy-retropc-theme", "path": "repos/themes/colorschemes/omarchy-retropc-theme"}
+,
+      {"name": "omarchy-reverie-theme", "path": "repos/themes/colorschemes/omarchy-reverie-theme"}
+,
+      {"name": "omarchy-rose-pine", "path": "repos/themes/colorschemes/omarchy-rose-pine"}
+,
+      {"name": "omarchy-rose-pine-dark", "path": "repos/themes/colorschemes/omarchy-rose-pine-dark"}
+,
+      {"name": "omarchy-rose-pine-dawn-theme", "path": "repos/themes/colorschemes/omarchy-rose-pine-dawn-theme"}
+,
+      {"name": "omarchy-sakura-theme", "path": "repos/themes/colorschemes/omarchy-sakura-theme"}
+,
+      {"name": "omarchy-sapphire-theme", "path": "repos/themes/colorschemes/omarchy-sapphire-theme"}
+,
+      {"name": "omarchy-serenity-theme", "path": "repos/themes/colorschemes/omarchy-serenity-theme"}
+,
+      {"name": "omarchy-shadesofjade-theme", "path": "repos/themes/colorschemes/omarchy-shadesofjade-theme"}
+,
+      {"name": "omarchy-snow-theme", "path": "repos/themes/colorschemes/omarchy-snow-theme"}
+,
+      {"name": "omarchy-solarized-light-theme", "path": "repos/themes/colorschemes/omarchy-solarized-light-theme"}
+,
+      {"name": "omarchy-solarizedosaka-theme", "path": "repos/themes/colorschemes/omarchy-solarizedosaka-theme"}
+,
+      {"name": "omarchy-solarized-theme", "path": "repos/themes/colorschemes/omarchy-solarized-theme"}
+,
+      {"name": "omarchy-solitude-theme", "path": "repos/themes/colorschemes/omarchy-solitude-theme"}
+,
+      {"name": "omarchy-space-monkey-theme", "path": "repos/themes/colorschemes/omarchy-space-monkey-theme"}
+,
+      {"name": "omarchy-spectra-theme", "path": "repos/themes/colorschemes/omarchy-spectra-theme"}
+,
+      {"name": "omarchy-sunset-drive-theme", "path": "repos/themes/colorschemes/omarchy-sunset-drive-theme"}
+,
+      {"name": "omarchy-synthwave84-theme", "path": "repos/themes/colorschemes/omarchy-synthwave84-theme"}
+,
+      {"name": "omarchy-thegreek-theme", "path": "repos/themes/colorschemes/omarchy-thegreek-theme"}
+,
+      {"name": "omarchy-tycho", "path": "repos/themes/colorschemes/omarchy-tycho"}
+,
+      {"name": "omarchy-velocity-theme", "path": "repos/themes/colorschemes/omarchy-velocity-theme"}
+,
+      {"name": "omarchy-velvetnight-theme", "path": "repos/themes/colorschemes/omarchy-velvetnight-theme"}
+,
+      {"name": "omarchy-vesper-theme", "path": "repos/themes/colorschemes/omarchy-vesper-theme"}
+,
+      {"name": "omarchy-vhs80-theme", "path": "repos/themes/colorschemes/omarchy-vhs80-theme"}
+,
+      {"name": "omarchy-void-theme", "path": "repos/themes/colorschemes/omarchy-void-theme"}
+,
+      {"name": "omarchy-wasteland-theme", "path": "repos/themes/colorschemes/omarchy-wasteland-theme"}
+,
+      {"name": "omarchy-waveform-dark-theme", "path": "repos/themes/colorschemes/omarchy-waveform-dark-theme"}
+,
+      {"name": "omarchy-whitegold-theme", "path": "repos/themes/colorschemes/omarchy-whitegold-theme"}
+,
+      {"name": "omarchy-wood-theme", "path": "repos/themes/colorschemes/omarchy-wood-theme"}
+,
+      {"name": "pink-blood-omarchy-theme", "path": "repos/themes/colorschemes/pink-blood-omarchy-theme"}
+    ]
+,
+    "gtk": [
+      {"name": "omarchy-gtk-theme", "path": "repos/themes/gtk/omarchy-gtk-theme"}
+    ]
+  }
+,
+  "tools": {
+    "all": [
+      {"name": "Adsovetzky-Omarchy-s-Waybar", "path": "repos/tools/Adsovetzky-Omarchy-s-Waybar"}
+,
+      {"name": "a-la-carchy", "path": "repos/tools/a-la-carchy"}
+,
+      {"name": "awesome-omarchy-tui", "path": "repos/tools/awesome-omarchy-tui"}
+,
+      {"name": "clipboard-manager", "path": "repos/tools/clipboard-manager"}
+,
+      {"name": "editt", "path": "repos/tools/editt"}
+,
+      {"name": "flutter_omarchy", "path": "repos/tools/flutter_omarchy"}
+,
+      {"name": "FW12Rotate", "path": "repos/tools/FW12Rotate"}
+,
+      {"name": "hyprBluetooth", "path": "repos/tools/hyprBluetooth"}
+,
+      {"name": "hyprmarker", "path": "repos/tools/hyprmarker"}
+,
+      {"name": "hyprmon", "path": "repos/tools/hyprmon"}
+,
+      {"name": "hypruler", "path": "repos/tools/hypruler"}
+,
+      {"name": "hyprwhspr", "path": "repos/tools/hyprwhspr"}
+,
+      {"name": "lazyVPN-for-Omarchy", "path": "repos/tools/lazyVPN-for-Omarchy"}
+,
+      {"name": "live-wallpaper-for-omarchy-linux", "path": "repos/tools/live-wallpaper-for-omarchy-linux"}
+,
+      {"name": "manual-nas-backup-tool", "path": "repos/tools/manual-nas-backup-tool"}
+,
+      {"name": "Neovim-theme-switcher", "path": "repos/tools/Neovim-theme-switcher"}
+,
+      {"name": "omaclip", "path": "repos/tools/omaclip"}
+,
+      {"name": "omarchpods", "path": "repos/tools/omarchpods"}
+,
+      {"name": "omarchy-ai", "path": "repos/tools/omarchy-ai"}
+,
+      {"name": "omarchy-background-changer", "path": "repos/tools/omarchy-background-changer"}
+,
+      {"name": "omarchy-box", "path": "repos/tools/omarchy-box"}
+,
+      {"name": "omarchy-calculator", "path": "repos/tools/omarchy-calculator"}
+,
+      {"name": "omarchy-cheat-sheet", "path": "repos/tools/omarchy-cheat-sheet"}
+,
+      {"name": "omarchy-chromium", "path": "repos/tools/omarchy-chromium"}
+,
+      {"name": "omarchy-cleaner", "path": "repos/tools/omarchy-cleaner"}
+,
+      {"name": "omarchy-configurator", "path": "repos/tools/omarchy-configurator"}
+,
+      {"name": "omarchy-enhanced-bindings", "path": "repos/tools/omarchy-enhanced-bindings"}
+,
+      {"name": "omarchy-fish", "path": "repos/tools/omarchy-fish"}
+,
+      {"name": "omarchy-gui", "path": "repos/tools/omarchy-gui"}
+,
+      {"name": "omarchy-hypr", "path": "repos/tools/omarchy-hypr"}
+,
+      {"name": "omarchy-installer", "path": "repos/tools/omarchy-installer"}
+,
+      {"name": "omarchy-iso", "path": "repos/tools/omarchy-iso"}
+,
+      {"name": "omarchy-material-waybar", "path": "repos/tools/omarchy-material-waybar"}
+,
+      {"name": "omarchy-migrate", "path": "repos/tools/omarchy-migrate"}
+,
+      {"name": "omarchy-monitor-settings", "path": "repos/tools/omarchy-monitor-settings"}
+,
+      {"name": "omarchy-monitor-toggle", "path": "repos/tools/omarchy-monitor-toggle"}
+,
+      {"name": "omarchy-pkgs", "path": "repos/tools/omarchy-pkgs"}
+,
+      {"name": "omarchy-speech-to-text", "path": "repos/tools/omarchy-speech-to-text"}
+,
+      {"name": "omarchy-steam-gaming-mode", "path": "repos/tools/omarchy-steam-gaming-mode"}
+,
+      {"name": "omarchy-theme-generator", "path": "repos/tools/omarchy-theme-generator"}
+,
+      {"name": "omarchy-theme-generator-jaime", "path": "repos/tools/omarchy-theme-generator-jaime"}
+,
+      {"name": "omarchy-theme-hook", "path": "repos/tools/omarchy-theme-hook"}
+,
+      {"name": "omarchy-themes-generator", "path": "repos/tools/omarchy-themes-generator"}
+,
+      {"name": "omarchy-tmux", "path": "repos/tools/omarchy-tmux"}
+,
+      {"name": "omarchy-tmux-galvao", "path": "repos/tools/omarchy-tmux-galvao"}
+,
+      {"name": "OMARCHY-VM-UTM", "path": "repos/tools/OMARCHY-VM-UTM"}
+,
+      {"name": "omarchy-waybar", "path": "repos/tools/omarchy-waybar"}
+,
+      {"name": "omarchy-wireguard-vpn-toggle", "path": "repos/tools/omarchy-wireguard-vpn-toggle"}
+,
+      {"name": "omarchy-workspace-mover", "path": "repos/tools/omarchy-workspace-mover"}
+,
+      {"name": "omarchy-zsh", "path": "repos/tools/omarchy-zsh"}
+,
+      {"name": "omazed", "path": "repos/tools/omazed"}
+,
+      {"name": "ostt", "path": "repos/tools/ostt"}
+,
+      {"name": "Pacsea", "path": "repos/tools/Pacsea"}
+,
+      {"name": "shout", "path": "repos/tools/shout"}
+,
+      {"name": "waybar-themes", "path": "repos/tools/waybar-themes"}
+,
+      {"name": "wayscriber", "path": "repos/tools/wayscriber"}
+    ]
+  }
+,
+  "configs": {
+    "all": [
+      {"name": "omarchy-config", "path": "repos/configs/omarchy-config"}
+    ]
+  }
+,
+  "curated": {
+    "all": [
+      {"name": "Alexx2-omarchy-themes", "path": "repos/curated/Alexx2-omarchy-themes"}
+,
+      {"name": "ArchRiot", "path": "repos/curated/ArchRiot"}
+,
+      {"name": "armarchy", "path": "repos/curated/armarchy"}
+,
+      {"name": "awesome-omarchy", "path": "repos/curated/awesome-omarchy"}
+,
+      {"name": "deckarchy", "path": "repos/curated/deckarchy"}
+,
+      {"name": "Fedpunk", "path": "repos/curated/Fedpunk"}
+,
+      {"name": "harilvfs-omarchy", "path": "repos/curated/harilvfs-omarchy"}
+,
+      {"name": "minimallyexceptional-awesome-omarchy", "path": "repos/curated/minimallyexceptional-awesome-omarchy"}
+,
+      {"name": "okimarchy", "path": "repos/curated/okimarchy"}
+,
+      {"name": "omadora", "path": "repos/curated/omadora"}
+,
+      {"name": "omarchy-cachyos", "path": "repos/curated/omarchy-cachyos"}
+,
+      {"name": "omarchy-hub", "path": "repos/curated/omarchy-hub"}
+,
+      {"name": "omarchy-nix", "path": "repos/curated/omarchy-nix"}
+,
+      {"name": "omarchy-on-cachyos", "path": "repos/curated/omarchy-on-cachyos"}
+,
+      {"name": "omarchy-supplement", "path": "repos/curated/omarchy-supplement"}
+,
+      {"name": "omarchy-titus", "path": "repos/curated/omarchy-titus"}
+,
+      {"name": "wheel-smith-awesome-omarchy", "path": "repos/curated/wheel-smith-awesome-omarchy"}
+    ]
+  }
+}}

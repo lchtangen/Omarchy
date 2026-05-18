@@ -1,0 +1,54 @@
+{
+  "omarchy-config": {
+    "url": "https://github.com/ezerfrlux/omarchy-config",
+    "description": "Full Omarchy configuration with custom themes, OSD tweaks, sounds, animations",
+    "components": {
+      "waybar": true,
+      "walker": true,
+      "hyprland": true,
+      "hyprlock": true,
+      "mako": true,
+      "alacritty": true,
+      "sounds": true,
+      "animations": true,
+      "wlogout": true
+    }
+  },
+  "okimarchy": {
+    "url": "https://github.com/cristian-fleischer/okimarchy",
+    "description": "Omarchy + Niri compositor — full config with 65+ scripts",
+    "components": {
+      "waybar": true,
+      "walker": true,
+      "hyprland": false,
+      "niri": true,
+      "alacritty": true,
+      "kitty": true,
+      "ghostty": true,
+      "fastfetch": true,
+      "btop": true,
+      "lazygit": true
+    }
+  },
+  "ArchRiot": {
+    "url": "https://github.com/CyphrRiot/ArchRiot",
+    "description": "Curated Arch Linux Hyprland experience — full Go-based installer",
+    "components": {
+      "waybar": true,
+      "hyprland": true,
+      "hyprlock": true,
+      "mako": true,
+      "nvim": true,
+      "ghostty": true,
+      "fuzzel": true,
+      "systemd": true,
+      "gtk": true,
+      "btop": true
+    }
+  },
+  "dots": {
+    "url": "https://github.com/j5onrf/dots",
+    "description": "Personal dotfiles for Hyprland (reference)",
+    "components": {}
+  }
+}

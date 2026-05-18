@@ -1,0 +1,20 @@
+/* Walker theme — replace colors */
+#outer {
+  background: rgba(26, 27, 38, 0.95);
+  border: 1px solid #7aa2f7;
+}
+
+#input {
+  background: #15161e;
+  color: #c0caf5;
+  border: 1px solid #414868;
+}
+
+#list > * {
+  color: #a9b1d6;
+}
+
+#list > *.selected {
+  background: rgba(122, 162, 247, 0.2);
+  color: #7aa2f7;
+}

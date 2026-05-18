@@ -1,0 +1,27 @@
+# Optional / Recommended tools
+
+pacman:
+  - obsidian
+  - typora
+  - libreoffice-fresh
+  - steam
+  - lutris
+  - retroarch
+  - spotify
+  - discord
+  - thunderbird
+  - ghostty
+  - kitty
+  - fastfetch
+  - cava
+  - swappy
+  - imv
+
+yay:
+  - nerd-fonts-jetbrains-mono
+  - nerd-fonts-fira-code
+  - nerd-fonts-hack
+  - oh-my-zsh-git
+  - swww
+  - swww-daemon
+  - hyprpicker

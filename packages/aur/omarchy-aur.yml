@@ -1,0 +1,15 @@
+# AUR packages relevant to Omarchy ecosystem
+
+packages:
+  - omarchy-cleaner-bin
+  - hyprwhspr-bin
+  - shout-bin
+  - hyprshot
+  - wlogout
+  - nwg-look
+  - nwg-drawer
+  - nwg-dock
+  - qt6-wayland
+  - qt5-wayland
+  - xdg-desktop-portal-hyprland
+  - xdg-desktop-portal-gtk

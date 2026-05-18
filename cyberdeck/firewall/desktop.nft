@@ -1,0 +1,38 @@
+#!/usr/sbin/nft -f
+
+# Desktop firewall — restrictive defaults, allow common services
+table inet omarchy {
+  chain input {
+    type filter hook input priority 0; policy drop;
+
+    # Allow established/related
+    ct state established,related accept
+
+    # Allow loopback
+    iif lo accept
+
+    # Allow ICMP (ping)
+    ip protocol icmp accept
+    ip6 nexthdr icv6 accept
+
+    # Allow SSH (local network only)
+    tcp dport 22 ip saddr 192.168.0.0/16 accept
+
+    # Allow mDNS (Avahi)
+    udp dport 5353 accept
+
+    # Allow DHCP
+    udp dport 67,68 accept
+
+    # Log dropped packets
+    log prefix "nft-drop " limit rate 5/minute
+  }
+
+  chain forward {
+    type filter hook forward priority 0; policy drop
+  }
+
+  chain output {
+    type filter hook output priority 0; policy accept
+  }
+}

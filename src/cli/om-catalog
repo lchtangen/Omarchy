@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+# om catalog — Browse, search, and discover repos in the Omarchy catalog
+set -euo pipefail
+
+OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
+ALL_JSON="$OM_ROOT/catalog/all.json"
+
+# --- Colors ---
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+BLUE='\033[0;34m'; CYAN='\033[0;36m'; MAG='\033[0;35m'
+BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
+
+usage() {
+    cat <<EOF
+${BOLD}om catalog${NC} — Browse and search the Omarchy repo catalog
+
+${BOLD}Usage:${NC}
+  om catalog ${GREEN}list${NC} [category]          # List repos (optionally by category)
+  om catalog ${GREEN}search${NC} <query>           # Search repos by name
+  om catalog ${GREEN}show${NC} <repo-name>         # Show details for a specific repo
+  om catalog ${GREEN}recommend${NC} [count]        # Recommend popular/mature repos
+  om catalog ${GREEN}stats${NC}                    # Catalog statistics
+
+${BOLD}Categories:${NC}
+  themes/gui-apps   themes/waybar   themes/colorschemes   themes/gtk
+  tools             configs         curated
+
+${BOLD}Examples:${NC}
+  om catalog list themes/colorschemes   # All color schemes
+  om catalog search retro               # Search for retro repos
+  om catalog show omarchist             # Details on omarchist
+  om catalog recommend                  # Top 10 popular repos
+EOF
+}
+
+list_category() {
+    local cat="$1" sub="$2"
+    local dir="$OM_ROOT/repos/$cat"
+    [[ -n "$sub" ]] && dir="$dir/$sub"
+    if [[ ! -d "$dir" ]]; then
+        echo -e "${YELLOW}Category not found:${NC} $cat${sub:+/}$sub"
+        echo "Try: om catalog list themes/gui-apps"
+        exit 1
+    fi
+    count=0
+    shopt -s nullglob
+    for repo in "$dir"/*/; do
+        [[ -d "$repo/.git" ]] || continue
+        name=$(basename "$repo")
+        echo -e "  ${CYAN}$name${NC}"
+        count=$((count + 1))
+    done
+    shopt -u nullglob
+    echo "Total: $count"
+}
+
+list_all() {
+    echo -e "${BOLD}=== Repo Catalog ===${NC}"
+    shopt -s nullglob
+    for cat in themes tools configs curated; do
+        case $cat in
+            themes)
+                for sub in gui-apps waybar colorschemes gtk; do
+                    c=0
+                    for r in "$OM_ROOT/repos/$cat/$sub"/*/; do
+                        [[ -d "$r/.git" ]] && c=$((c+1))
+                    done
+                    echo -e "\n${GREEN}$cat/$sub${NC} ($c)"
+                done
+                ;;
+            *)
+                c=0
+                for r in "$OM_ROOT/repos/$cat"/*/; do
+                    [[ -d "$r/.git" ]] && c=$((c+1))
+                done
+                echo -e "\n${GREEN}$cat${NC} ($c)"
+                ;;
+        esac
+    done
+    shopt -u nullglob
+}
+
+search_repos() {
+    local query="$1"
+    echo -e "${BOLD}Searching for:${NC} $query\n"
+
+    # Walk all repos and match name
+    found=0
+    grep_query=$(echo "$query" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
+    while IFS= read -r -d '' dir; do
+        name=$(basename "$(dirname "$dir")")
+        name_lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+        if echo "$name_lower" | grep -q "$grep_query"; then
+            rel="$(dirname "${dir#$OM_ROOT/}")"
+            echo -e "  ${CYAN}$name${NC}  ${DIM}$rel${NC}"
+            found=$((found + 1))
+        fi
+    done < <(find "$OM_ROOT/repos" -name '.git' -type d -print0 2>/dev/null)
+
+    if (( found == 0 )); then
+        echo -e "  ${YELLOW}No repos match '$query'${NC}"
+    else
+        echo -e "\nFound: $found"
+    fi
+}
+
+show_repo() {
+    local name="$1"
+    # Find repo path by exact name (must contain .git to be a repo root)
+    path=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$name" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+    if [[ -z "$path" ]]; then
+        echo -e "${RED}Repo not found:${NC} $name"
+        echo "Run 'om catalog list' to see all repos."
+        exit 1
+    fi
+    rel="${path#$OM_ROOT/}"
+    echo -e "${BOLD}=== $name ===${NC}"
+    echo -e "  ${DIM}Path:${NC}     $rel"
+    echo -e "  ${DIM}Size:${NC}     $(du -sh "$path" 2>/dev/null | cut -f1)"
+    echo -e "  ${DIM}Contents:${NC} $(find "$path" -type f | wc -l) files"
+    # Show subdirectories
+    echo -e "  ${DIM}Structure:${NC}"
+    shopt -s nullglob
+    for item in "$path"/*/; do echo "    $(basename "$item")/"; done
+    shopt -u nullglob
+    [[ -f "$path/README.md" ]] && echo -e "  ${DIM}README:${NC} $(head -1 "$path/README.md" 2>/dev/null | head -c 80)"
+}
+
+recommend() {
+    local limit="${1:-10}"
+    echo -e "${BOLD}=== Recommended Repos ===${NC}\n"
+    echo -e "Based on maturity, stars, and uniqueness:\n"
+
+    size_of() {
+        local d="$1"
+        du -sh "$d" 2>/dev/null | cut -f1 || echo "?"
+    }
+
+    echo -e "${GREEN}Top Configurations:${NC}"
+    for dir in ArchRiot okimarchy omarchy-config omarchy-titus; do
+        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
+    done
+
+    echo -e "\n${GREEN}Top Themes:${NC}"
+    for dir in aetheria omarchy-retropc-theme omarchy-one-dark-pro-theme \
+               omarchy-coppernight-theme omarchy-lumon-theme omarchy-sapphire-theme \
+               omarchy-evergarden omarchy-rose-pine omarchy-synthwave84-theme; do
+        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
+    done
+
+    echo -e "\n${GREEN}Top Tools:${NC}"
+    for dir in wayscriber hyprmon ostt hyprwhspr awesome-omarchy-tui \
+               omarchy-cleaner omarchy-background-changer; do
+        p=$(find "$OM_ROOT/repos" -maxdepth 4 -type d -name "$dir" -exec test -d "{}/.git" \; -print 2>/dev/null | head -1)
+        [[ -n "$p" ]] && echo -e "  ${CYAN}$dir${NC}  ${DIM}$(size_of "$p")${NC}"
+    done
+}
+
+catalog_stats() {
+    local total=0
+    echo -e "${BOLD}=== Catalog Statistics ===${NC}\n"
+    printf "  %-25s %s\n" "Category" "Count"
+    printf "  %-25s %s\n" "----------------------" "-----"
+    shopt -s nullglob
+    for cat in themes tools configs curated; do
+        c=0
+        case $cat in
+            themes)
+                for sub in gui-apps waybar colorschemes gtk; do
+                    for r in "$OM_ROOT/repos/$cat/$sub"/*/; do
+                        [[ -d "$r/.git" ]] && c=$((c+1))
+                    done
+                done
+                ;;
+            *)
+                for r in "$OM_ROOT/repos/$cat"/*/; do
+                    [[ -d "$r/.git" ]] && c=$((c+1))
+                done
+                ;;
+        esac
+        printf "  %-25s %d\n" "$cat" "$c"
+        total=$((total + c))
+    done
+    printf "  %-25s %s\n" "----------------------" "-----"
+    printf "  %-25s %d\n" "TOTAL" "$total"
+    shopt -u nullglob
+    echo -e "\n  ${DIM}Generated: $(date -r "$OM_ROOT/catalog/all.json" 2>/dev/null || echo 'N/A')${NC}"
+}
+
+# --- Dispatch ---
+CMD="${1:-help}"; shift 2>/dev/null || true
+
+case "$CMD" in
+    list|l)
+        SUB="${1:-}"
+        if [[ -z "$SUB" ]]; then
+            list_all
+        else
+            cat_part="${SUB%%/*}"
+            sub_part="${SUB#*/}"
+            [[ "$cat_part" == "$sub_part" ]] && sub_part=""
+            list_category "$cat_part" "$sub_part"
+        fi
+        ;;
+    search|s)
+        [[ -z "${1:-}" ]] && { echo "Usage: om catalog search <query>"; exit 1; }
+        search_repos "$1"
+        ;;
+    show|view)
+        [[ -z "${1:-}" ]] && { echo "Usage: om catalog show <repo-name>"; exit 1; }
+        show_repo "$1"
+        ;;
+    recommend|rec)
+        recommend "${1:-10}"
+        ;;
+    stats)
+        catalog_stats
+        ;;
+    help|-h|--help) usage ;;
+    *) echo "Unknown catalog subcommand: $CMD"; usage; exit 1 ;;
+esac

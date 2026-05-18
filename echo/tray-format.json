@@ -1,0 +1,20 @@
+{
+  "tray": {
+    "description": "Hyprwhisper/OSTT tray JSON format for waybar indicators",
+    "format": {
+      "text": "string — display text (supports Pango markup)",
+      "alt": "string — alternative text for formatting",
+      "tooltip": "string — tooltip on hover",
+      "class": "string — CSS class for styling",
+      "percentage": "number (0-100) — for progress indicators"
+    },
+    "examples": [
+      {
+        "recording": {"text": "🔴 Rec", "class": "recording", "tooltip": "Screen recording active"},
+        "idle": {"text": "⏸ Idle", "class": "idle-inhibited", "tooltip": "Idle inhibit on"},
+        "update": {"text": "📦 3", "class": "update-available", "tooltip": "3 updates available"},
+        "mpris": {"text": "♫ Song Title", "alt": "Playing", "class": "playing"}
+      }
+    ]
+  }
+}

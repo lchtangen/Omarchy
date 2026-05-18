@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Alert if CPU load exceeds threshold
+
+THRESHOLD="${1:-4.0}"
+load=$(cut -d' ' -f1 /proc/loadavg)
+
+if (( $(echo "$load > $THRESHOLD" | bc -l 2>/dev/null) )); then
+  notify-send -u critical "⚠ Observatory Alert" "CPU load: $load (threshold: $THRESHOLD)"
+  echo "ALERT: CPU load $load exceeds $THRESHOLD"
+  exit 1
+fi
+echo "OK: CPU load $load"

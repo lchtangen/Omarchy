@@ -1,0 +1,38 @@
+# Echo IPC Signal Registry
+# RTMIN+ signals for waybar integration
+# Pattern: omarchy uses SIGRTMIN+8 through SIGRTMIN+13
+
+signals:
+  screenrecording:
+    number: 8
+    description: Toggle screen recording indicator
+    command: omarchy-cmd-screenrecord
+    script: indicators/screen-recording.sh
+
+  update:
+    number: 7
+    description: Trigger update check indicator
+    command: omarchy-update-available
+    script: indicators/update.sh
+
+  idle:
+    number: 9
+    description: Toggle idle inhibit indicator
+    command: omarchy-toggle-idle
+    script: indicators/idle.sh
+
+  notifications:
+    number: 10
+    description: Toggle notification silencing indicator
+    command: omarchy-toggle-notification-silencing
+    script: indicators/notification-silencing.sh
+
+  battery:
+    number: 11
+    description: Battery critical alert
+    command: omarchy-battery-status
+
+  pomodoro:
+    number: 12
+    description: Pomodoro timer tick
+    command: omarchy-pomodoro-status

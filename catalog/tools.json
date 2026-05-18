@@ -1,0 +1,102 @@
+{
+  "utilities": [
+    {
+      "name": "wayscriber",
+      "stars": 555,
+      "url": "https://github.com/devmobasa/wayscriber",
+      "lang": "Rust",
+      "description": "Drawing/annotation overlay for Wayland — whiteboard, screenshot, zoom"
+    },
+    {
+      "name": "hyprmon",
+      "stars": 466,
+      "url": "https://github.com/erans/hyprmon",
+      "lang": "Go",
+      "description": "TUI monitor configuration tool for Hyprland with drag-and-drop"
+    },
+    {
+      "name": "omarchy-cleaner",
+      "stars": 263,
+      "url": "https://github.com/maxart/omarchy-cleaner",
+      "lang": "Shell",
+      "description": "Remove pre-installed apps and webapps"
+    },
+    {
+      "name": "ostt",
+      "stars": 220,
+      "url": "https://github.com/kristoferlund/ostt",
+      "lang": "Rust",
+      "description": "Open source voice-to-text for terminal — hotkey recording, any provider"
+    },
+    {
+      "name": "a-la-carchy",
+      "stars": 0,
+      "url": "https://github.com/DanielCoffey1/a-la-carchy",
+      "lang": "Shell",
+      "description": "TUI debloater and optimizer for Omarchy"
+    },
+    {
+      "name": "awesome-omarchy-tui",
+      "stars": 15,
+      "url": "https://github.com/aorumbayev/awesome-omarchy-tui",
+      "lang": "Rust",
+      "description": "TUI browser for awesome-omarchy content"
+    }
+  ],
+  "voice": [
+    {
+      "name": "hyprwhspr",
+      "stars": 0,
+      "url": "https://github.com/goodroot/hyprwhspr",
+      "lang": "Shell",
+      "description": "Native speech-to-text for Arch/Omarchy — Whisper dictation"
+    },
+    {
+      "name": "shout",
+      "stars": 0,
+      "url": "https://github.com/robzolkos/shout",
+      "lang": "Shell",
+      "description": "Real-time dictation with hotkey activation"
+    }
+  ],
+  "shell-integrations": [
+    {
+      "name": "omarchy-tmux",
+      "stars": 0,
+      "url": "https://github.com/joaofelipegalvao/omarchy-tmux",
+      "description": "Tmux config styled to match Omarchy themes"
+    },
+    {
+      "name": "omarchy-zsh",
+      "stars": 0,
+      "url": "https://github.com/omacom-io/omarchy-zsh",
+      "lang": "Shell",
+      "description": "Enhanced Zsh config with Omarchy aliases and prompt"
+    },
+    {
+      "name": "omarchy-fish",
+      "stars": 0,
+      "url": "https://github.com/omacom-io/omarchy-fish",
+      "lang": "Shell",
+      "description": "Fish shell integration for Omarchy"
+    }
+  ],
+  "hooks": [
+    {
+      "name": "omarchy-theme-hook",
+      "stars": 0,
+      "url": "https://github.com/imbypass/omarchy-theme-hook",
+      "lang": "Shell",
+      "description": "Run custom scripts when theme changes — extend to unsupported apps"
+    }
+  ],
+  "backgrounds": [
+    {
+      "name": "omarchy-background-changer",
+      "stars": 18,
+      "url": "https://github.com/mpriem/omarchy-background-changer",
+      "lang": "Shell",
+      "description": "Hyprland event listener for workspace-aware wallpapers"
+    }
+  ]
+}
