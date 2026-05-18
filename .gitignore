@@ -1,0 +1,23 @@
+# cloned repos (managed by src/scripts/clone-all.sh)
+repos/
+
+# extracted outputs
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# temp
+*~
+*.bak
+*.backup
+
+# git
+.gitmodules
