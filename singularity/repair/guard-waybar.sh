@@ -17,6 +17,7 @@ if pgrep -x waybar > /dev/null 2>&1; then
 fi
 
 echo "REPAIR: waybar not running — restarting"
+command -v waybar &>/dev/null || { echo "ERROR: waybar command not found"; exit 1; }
 notify-send -u critical "Omarchy Guard" "Waybar was down — restarted" 2>/dev/null || true
-waybar &
+waybar &>/dev/null &
 exit 1

@@ -263,7 +263,13 @@ omarchy theme set "Tokyo Night"
 
 **Waybar not showing or crashed:**
 ```bash
-pkill waybar; waybar &
+om system guard
+```
+
+If the whole session feels unstable or Waybar keeps duplicating:
+
+```bash
+om system stabilize
 ```
 
 **Hyprland compositor crash (terminal still accessible):**

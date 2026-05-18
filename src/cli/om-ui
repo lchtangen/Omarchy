@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# Shared visual language for the Omarchy CLI.
+
+if [[ "${OM_UI_LOADED:-0}" == "1" ]]; then
+    return 0
+fi
+OM_UI_LOADED=1
+
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    OM_RED=$'\033[38;5;203m'
+    OM_GREEN=$'\033[38;5;120m'
+    OM_YELLOW=$'\033[38;5;221m'
+    OM_BLUE=$'\033[38;5;111m'
+    OM_CYAN=$'\033[38;5;87m'
+    OM_MAG=$'\033[38;5;207m'
+    OM_VIOLET=$'\033[38;5;141m'
+    OM_MUTED=$'\033[38;5;245m'
+    OM_DIM=$'\033[2m'
+    OM_BOLD=$'\033[1m'
+    OM_NC=$'\033[0m'
+else
+    OM_RED=''; OM_GREEN=''; OM_YELLOW=''; OM_BLUE=''
+    OM_CYAN=''; OM_MAG=''; OM_VIOLET=''; OM_MUTED=''
+    OM_DIM=''; OM_BOLD=''; OM_NC=''
+fi
+
+# Legacy color aliases used by existing command modules.
+# shellcheck disable=SC2034
+RED="$OM_RED"
+# shellcheck disable=SC2034
+GREEN="$OM_GREEN"
+# shellcheck disable=SC2034
+YELLOW="$OM_YELLOW"
+# shellcheck disable=SC2034
+BLUE="$OM_BLUE"
+# shellcheck disable=SC2034
+CYAN="$OM_CYAN"
+# shellcheck disable=SC2034
+MAG="$OM_MAG"
+# shellcheck disable=SC2034
+BOLD="$OM_BOLD"
+# shellcheck disable=SC2034
+DIM="$OM_DIM"
+# shellcheck disable=SC2034
+NC="$OM_NC"
+
+ui_line() {
+    printf '%b\n' "${OM_MUTED}────────────────────────────────────────────────────────────${OM_NC}"
+}
+
+ui_brand() {
+    local title="$1" subtitle="${2:-}"
+    printf '%b\n' "${OM_CYAN}${OM_BOLD}╭────────────────────────────────────────────────────────────╮${OM_NC}"
+    printf '%b\n' "${OM_CYAN}${OM_BOLD}│${OM_NC} ${OM_BOLD}${title}${OM_NC}"
+    [[ -n "$subtitle" ]] && printf '%b\n' "${OM_CYAN}${OM_BOLD}│${OM_NC} ${OM_MUTED}${subtitle}${OM_NC}"
+    printf '%b\n' "${OM_CYAN}${OM_BOLD}╰────────────────────────────────────────────────────────────╯${OM_NC}"
+}
+
+ui_header() {
+    local title="$1" subtitle="${2:-}"
+    printf '%b\n' "${OM_BOLD}${OM_CYAN}$title${OM_NC}"
+    [[ -n "$subtitle" ]] && printf '%b\n' "${OM_MUTED}$subtitle${OM_NC}"
+    ui_line
+}
+
+ui_section() {
+    printf '\n%b\n' "${OM_VIOLET}${OM_BOLD}$1${OM_NC}"
+}
+
+ui_kv() {
+    local key="$1" value="$2"
+    printf '  %b%-18s%b %s\n' "$OM_MUTED" "$key" "$OM_NC" "$value"
+}
+
+ui_command() {
+    local command="$1" description="$2"
+    printf '  %b%-28s%b %s\n' "$OM_GREEN" "$command" "$OM_NC" "$description"
+}
+
+ui_ok() {
+    printf '  %b✓%b %s\n' "$OM_GREEN" "$OM_NC" "$1"
+}
+
+ui_warn() {
+    printf '  %b⚠%b %s\n' "$OM_YELLOW" "$OM_NC" "$1"
+}
+
+ui_err() {
+    printf '  %b✗%b %s\n' "$OM_RED" "$OM_NC" "$1"
+}
+
+ui_note() {
+    printf '  %b%s%b\n' "$OM_MUTED" "$1" "$OM_NC"
+}
+
+ui_success() {
+    printf '%b%s%b\n' "$OM_GREEN" "$1" "$OM_NC"
+}
+
+ui_warning() {
+    printf '%b%s%b\n' "$OM_YELLOW" "$1" "$OM_NC"
+}
+
+ui_error() {
+    printf '%b%s%b\n' "$OM_RED" "$1" "$OM_NC"
+}
+
+ui_badge() {
+    local label="$1"
+    printf '%b[%s]%b' "$OM_MAG" "$label" "$OM_NC"
+}

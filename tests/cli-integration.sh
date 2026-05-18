@@ -64,6 +64,16 @@ assert_ok "theme current" $OM theme current
 echo "Testing om system..."
 assert_ok "system info" $OM system info
 assert_ok "system health" $OM system health
+assert_fail "tui requires terminal" $OM tui
+
+# --- om lab ---
+echo "Testing om lab..."
+assert_ok "lab ideas" $OM lab ideas
+assert_ok "lab tools" $OM lab tools
+assert_ok "lab tool hyprmon" $OM lab tool hyprmon
+assert_ok "lab runway" $OM lab runway
+assert_output "lab ideas includes theme forge" "theme-forge" $OM lab ideas
+assert_output "lab tools includes hyprmon" "hyprmon" $OM lab tools
 
 # --- om root commands ---
 echo "Testing om root commands..."

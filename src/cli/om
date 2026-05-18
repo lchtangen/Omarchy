@@ -5,69 +5,70 @@ set -euo pipefail
 
 OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
 OM_VERSION="1.0.0"
-
-# --- Colors ---
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
-BLUE='\033[0;34m'; CYAN='\033[0;36m'; MAG='\033[0;35m'
-BOLD='\033[1m'; DIM='\033[2m'; NC='\033[0m'
+cli_dir="$(dirname "$0")"
+# shellcheck source=src/cli/om-ui
+. "$cli_dir/om-ui"
 
 usage() {
-    cat <<EOF
-${BOLD}om — Omarchy CLI Toolbox${NC}  v$OM_VERSION
-
-${DIM}Inspired by linutil — manage themes, system, and catalog from one place.${NC}
-
-${BOLD}Usage:${NC}
-  om <command> [subcommand] [options]
-
-${BOLD}Commands:${NC}
-  ${GREEN}catalog${NC}      Browse and search the repo catalog (${CYAN}list${NC}|${CYAN}search${NC}|${CYAN}show${NC}|${CYAN}recommend${NC})
-  ${GREEN}theme${NC}        Theme management (${CYAN}list${NC}|${CYAN}set${NC}|${CYAN}current${NC}|${CYAN}install${NC})
-  ${GREEN}system${NC}       System management (${CYAN}info${NC}|${CYAN}health${NC}|${CYAN}stabilize${NC}|${CYAN}reload${NC})
-  ${GREEN}status${NC}       Show project overview
-  ${GREEN}update${NC}       Pull latest from all repos
-  ${GREEN}extract${NC}      Extract assets from repos into dist/
-  ${GREEN}version${NC}      Show version
-  ${GREEN}install${NC}      Install om CLI to /usr/local/bin
-
-${BOLD}Examples:${NC}
-  om catalog list          # List all repos
-  om catalog search retro  # Search for retro-themed repos
-  om theme set tokyo-night # Apply a theme
-  om system health         # Run health checks
-  om status                # Show overview
-
-Run 'om <command> --help' for subcommand details.
-EOF
+    ui_brand "Omarchy Command Center  v$OM_VERSION" "Release-grade tooling for themes, diagnostics, catalogs, labs, recovery, and TUI control."
+    ui_section "Usage"
+    ui_command "om <command> [options]" "Run a workspace command"
+    ui_section "Command Matrix"
+    ui_command "catalog" "Browse/search repos: list, search, show, recommend, browse, stats"
+    ui_command "theme" "Manage themes: list, set, current, install, remove, preview"
+    ui_command "system" "Inspect and repair: info, health, diagnose, stabilize, reload, guard"
+    ui_command "lab" "Mine cloned repos for tools, ideas, and release tracks"
+    ui_command "tui" "Open the interactive dashboard"
+    ui_command "status" "Project overview and quick health"
+    ui_command "update" "Pull latest from all cloned repos"
+    ui_command "extract" "Extract assets from repos into dist/"
+    ui_command "version" "Show CLI version"
+    ui_command "install" "Install om into /usr/local/bin"
+    ui_section "Examples"
+    ui_command "om catalog list" "List all repos"
+    ui_command "om catalog search retro" "Search retro-themed repos"
+    ui_command "om theme set tokyo-night" "Apply a theme"
+    ui_command "om lab runway" "Show the next feature tracks"
+    ui_command "om tui" "Open the interactive dashboard"
+    ui_command "om system health" "Run health checks"
+    ui_command "om status" "Show the release dashboard"
+    printf '\n%b\n' "${DIM}Run 'om <command> --help' for subcommand details.${NC}"
 }
-
-# --- Source subcommand modules ---
-cli_dir="$(dirname "$0")"
 
 cmd_catalog() { bash "$cli_dir/om-catalog" "$@"; }
 cmd_theme()   { bash "$cli_dir/om-theme" "$@"; }
 cmd_system()  { bash "$cli_dir/om-system" "$@"; }
+cmd_lab()     { bash "$cli_dir/om-lab" "$@"; }
+cmd_tui()     { bash "$cli_dir/om-tui" "$@"; }
 
 # --- Direct commands ---
 cmd_status() {
     bash "$OM_ROOT/src/scripts/extract.sh" --status 2>/dev/null || true
-    echo "=== Omarchy Project Overview ==="
-    printf "  %-25s %s\n" "Root" "$OM_ROOT"
-    printf "  %-25s %s\n" "Version" "$OM_VERSION"
-    printf "  %-25s %s\n" "Repos" "$(find -L "$OM_ROOT/repos" -name '.git' -type d | wc -l)"
-    printf "  %-25s %s\n" "Custom Dirs" "$(ls -d "$OM_ROOT"/*/ 2>/dev/null | grep -v repos | wc -l)"
-    # Quick health
-    echo
-    echo "=== Quick Health ==="
+    local repo_count custom_dirs
+    repo_count=$(find -L "$OM_ROOT/repos" -name '.git' -type d 2>/dev/null | wc -l)
+    custom_dirs=$(find "$OM_ROOT" -mindepth 1 -maxdepth 1 -type d ! -name repos 2>/dev/null | wc -l)
+
+    ui_brand "Omarchy Project Overview" "Operational dashboard for the local release workspace."
+    ui_section "Build Identity"
+    ui_kv "Root" "$OM_ROOT"
+    ui_kv "Version" "$OM_VERSION"
+    ui_kv "Repos" "$repo_count"
+    ui_kv "Custom Dirs" "$custom_dirs"
+
+    ui_section "Quick Health"
     for d in catalog modules templates tests nexus singularity hologram; do
-      [[ -d "$OM_ROOT/$d" ]] && echo -e "  ${GREEN}✓${NC} $d/" || echo -e "  ${RED}✗${NC} $d/"
+      if [[ -d "$OM_ROOT/$d" ]]; then
+          ui_ok "$d/"
+      else
+          ui_err "$d/"
+      fi
     done
 }
 
 cmd_update() {
-    echo "Updating all repos..."
+    ui_header "Repository Update" "Fast-forward pull across cloned Omarchy repos."
     find -L "$OM_ROOT/repos" -name '.git' -type d -execdir sh -c 'echo "  $(basename "$(dirname "$(pwd)")")/$(basename "$(pwd)")" && git pull --ff-only 2>/dev/null || true' \;
-    echo "Done."
+    ui_success "Done."
 }
 
 cmd_extract() {
@@ -75,8 +76,7 @@ cmd_extract() {
 }
 
 cmd_version() {
-    echo "om v$OM_VERSION"
-    echo "Omarchy project at: $OM_ROOT"
+    ui_brand "om v$OM_VERSION" "Omarchy project at: $OM_ROOT"
 }
 
 cmd_install() {
@@ -87,18 +87,18 @@ cmd_install() {
         local existing
         existing=$(readlink -f "$target" 2>/dev/null || echo "unknown")
         if [[ "$existing" == "$src" ]]; then
-            echo -e "${GREEN}Already installed:${NC} $target -> $src"
+            ui_success "Already installed: $target -> $src"
             return 0
         fi
-        echo -e "${YELLOW}Warning:${NC} $target already exists (points to $existing)"
-        echo -e "  Remove it first: sudo rm $target"
+        ui_warning "Warning: $target already exists (points to $existing)"
+        ui_note "Remove it first: sudo rm $target"
         return 1
     fi
 
-    echo "Installing om CLI..."
+    ui_header "Install" "Linking om into /usr/local/bin."
     sudo ln -sf "$src" "$target"
-    echo -e "${GREEN}Installed:${NC} $target -> $src"
-    echo "You can now run 'om' from anywhere."
+    ui_success "Installed: $target -> $src"
+    ui_note "You can now run 'om' from anywhere."
 }
 
 # --- Main dispatch ---
@@ -108,11 +108,13 @@ case "$CMD" in
     catalog|cat)  cmd_catalog "$@" ;;
     theme|th)     cmd_theme "$@" ;;
     system|sys)   cmd_system "$@" ;;
+    lab|labs)     cmd_lab "$@" ;;
+    tui|dashboard) cmd_tui "$@" ;;
     status|st)    cmd_status ;;
     update|up)    cmd_update ;;
     extract|ext)  cmd_extract ;;
     install|i)    cmd_install ;;
     version|ver)  cmd_version ;;
     help|-h|--help) usage ;;
-    *) echo -e "${RED}Unknown command:${NC} $CMD"; usage; exit 1 ;;
+    *) ui_error "Unknown command: $CMD"; usage; exit 1 ;;
 esac

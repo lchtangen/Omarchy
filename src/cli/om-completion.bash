@@ -5,7 +5,7 @@ _om_completion() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-    commands="catalog theme system status update extract version install help"
+    commands="catalog theme system lab labs tui dashboard status update extract version install help"
 
     if [[ $COMP_CWORD -eq 1 ]]; then
         COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -47,7 +47,13 @@ _om_completion() {
             fi
             ;;
         system|sys)
-            subcommands="info health stabilize reload guard help"
+            subcommands="info health diagnose diag stabilize reload guard help"
+            if [[ $COMP_CWORD -eq 2 ]]; then
+                COMPREPLY=($(compgen -W "$subcommands" -- "$cur"))
+            fi
+            ;;
+        lab|labs)
+            subcommands="ideas list show tools tool repos search runway help"
             if [[ $COMP_CWORD -eq 2 ]]; then
                 COMPREPLY=($(compgen -W "$subcommands" -- "$cur"))
             fi

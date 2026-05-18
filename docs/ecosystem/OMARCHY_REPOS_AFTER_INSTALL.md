@@ -231,7 +231,7 @@ cp -r ~/.config/waybar ~/.config/waybar.backup.$(date +%s)
 Restart Waybar after changes:
 
 ```bash
-omarchy restart waybar
+om system guard
 ```
 
 ### Minimal Waybar Themes
@@ -481,8 +481,8 @@ omarchy theme set "Tokyo Night"
 If Waybar breaks:
 
 ```bash
-omarchy refresh waybar
-omarchy restart waybar
+om system guard
+om system reload
 ```
 
 If Hyprland config breaks:
@@ -497,4 +497,3 @@ If terminal theme breaks:
 ```bash
 omarchy restart terminal
 ```
-

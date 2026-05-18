@@ -1,0 +1,229 @@
+#!/usr/bin/env bash
+# om tui — Interactive dashboard for Omarchy.
+# shellcheck disable=SC2016
+set -euo pipefail
+
+OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
+cli_dir="$(dirname "$0")"
+# shellcheck source=src/cli/om-ui
+. "$cli_dir/om-ui"
+
+OM_CMD=(bash "$cli_dir/om")
+export OM_TUI_OM="$cli_dir/om"
+
+pause() {
+    printf '\n%b' "${DIM}Press Enter to return to the dashboard...${NC}"
+    read -r _ || true
+}
+
+run_panel() {
+    clear
+    "$@"
+    pause
+}
+
+repo_picker() {
+    if command -v fzf &>/dev/null; then
+        find -L "$OM_ROOT/repos" -name '.git' -type d -exec dirname {} \; 2>/dev/null \
+            | while IFS= read -r dir; do
+                printf '%-42s %s\n' "$(basename "$dir")" "${dir#"$OM_ROOT"/}"
+            done \
+            | sort \
+            | fzf --prompt="om repo> " \
+                  --header="Enter: inspect repo  Esc: dashboard" \
+                  --preview='bash "$OM_TUI_OM" catalog show {1} 2>/dev/null || true' \
+                  --preview-window=right:60%:wrap \
+                  --height=90% --layout=reverse --border \
+            | awk '{print $1}'
+    else
+        ui_header "Repo Picker" "fzf is not installed; showing search instead."
+        read -r -p "Search query: " query
+        [[ -n "$query" ]] && "${OM_CMD[@]}" catalog search "$query"
+        pause
+    fi
+}
+
+theme_picker() {
+    local theme_dir="${OMARCHY_THEME_DIR:-$HOME/.config/omarchy/themes}"
+    [[ -d "$theme_dir" ]] || { ui_warning "No theme directory at $theme_dir"; pause; return 0; }
+
+    if command -v fzf &>/dev/null; then
+        find "$theme_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
+            | sort \
+            | fzf --prompt="om theme> " \
+                  --header="Enter: preview/apply menu  Esc: dashboard" \
+                  --preview='bash "$OM_TUI_OM" theme preview {} 2>/dev/null || true' \
+                  --preview-window=right:60%:wrap \
+                  --height=90% --layout=reverse --border
+    else
+        "${OM_CMD[@]}" theme list
+        read -r -p "Theme name: " theme
+        printf '%s\n' "$theme"
+    fi
+}
+
+theme_action_menu() {
+    local theme="$1"
+    [[ -z "$theme" ]] && return 0
+
+    local action
+    action=$(printf '%s\n' \
+        "preview  Inspect theme metadata" \
+        "apply    Apply this theme" \
+        "back     Return to dashboard" \
+        | fzf --prompt="theme action> " --height=40% --layout=reverse --border 2>/dev/null \
+        | awk '{print $1}') || true
+
+    case "$action" in
+        preview) run_panel "${OM_CMD[@]}" theme preview "$theme" ;;
+        apply) run_panel "${OM_CMD[@]}" theme set "$theme" ;;
+        *) ;;
+    esac
+}
+
+lab_idea_picker() {
+    if command -v fzf &>/dev/null; then
+        "${OM_CMD[@]}" lab ideas \
+            | awk 'NR > 4 && NF {print $1}' \
+            | fzf --prompt="om lab idea> " \
+                  --header="Enter: inspect idea  Esc: dashboard" \
+                  --preview='bash "$OM_TUI_OM" lab show {} 2>/dev/null || true' \
+                  --preview-window=right:65%:wrap \
+                  --height=90% --layout=reverse --border
+    else
+        "${OM_CMD[@]}" lab ideas
+        read -r -p "Idea id: " idea
+        printf '%s\n' "$idea"
+    fi
+}
+
+tool_picker() {
+    if command -v fzf &>/dev/null; then
+        find -L "$OM_ROOT/repos/tools" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null \
+            | sort \
+            | fzf --prompt="om tool> " \
+                  --header="Enter: inspect tool  Esc: dashboard" \
+                  --preview='bash "$OM_TUI_OM" lab tool {} 2>/dev/null || true' \
+                  --preview-window=right:65%:wrap \
+                  --height=90% --layout=reverse --border
+    else
+        "${OM_CMD[@]}" lab tools
+        read -r -p "Tool name: " tool
+        printf '%s\n' "$tool"
+    fi
+}
+
+fallback_menu() {
+    local choice
+    while true; do
+        clear
+        ui_brand "Omarchy TUI" "Interactive dashboard"
+        ui_section "Menu"
+        ui_command "1" "System health"
+        ui_command "2" "Runtime diagnostics"
+        ui_command "3" "Project status"
+        ui_command "4" "Catalog stats"
+        ui_command "5" "Catalog search"
+        ui_command "6" "Theme current"
+        ui_command "7" "Stabilize session"
+        ui_command "8" "Reload Hyprland"
+        ui_command "q" "Quit"
+        printf '\nSelect: '
+        read -r choice || return 0
+        case "$choice" in
+            1) run_panel "${OM_CMD[@]}" system health ;;
+            2) run_panel "${OM_CMD[@]}" system diagnose ;;
+            3) run_panel "${OM_CMD[@]}" status ;;
+            4) run_panel "${OM_CMD[@]}" catalog stats ;;
+            5) read -r -p "Search query: " q; [[ -n "$q" ]] && run_panel "${OM_CMD[@]}" catalog search "$q" ;;
+            6) run_panel "${OM_CMD[@]}" theme current ;;
+            7) run_panel "${OM_CMD[@]}" system stabilize ;;
+            8) run_panel "${OM_CMD[@]}" system reload ;;
+            q|Q) return 0 ;;
+        esac
+    done
+}
+
+fzf_dashboard() {
+    local choice repo theme idea tool
+    while true; do
+        choice=$(printf '%s\n' \
+            "health      System health check" \
+            "diagnose    Runtime diagnostics and logs" \
+            "status      Project release dashboard" \
+            "lab         Release ideas from cloned repos" \
+            "tools       Local tools and install hints" \
+            "catalog     Catalog statistics" \
+            "repos       Browse repo catalog" \
+            "themes      Browse installed themes" \
+            "current     Show active theme" \
+            "stabilize   Repair Waybar and hypridle session state" \
+            "reload      Reload Hyprland and refresh Waybar" \
+            "quit        Exit Omarchy TUI" \
+            | fzf --prompt="om dashboard> " \
+                  --header="Enter: run action  Esc: quit" \
+                  --preview='case {1} in
+                    health) bash "$OM_TUI_OM" system health ;;
+                    diagnose) bash "$OM_TUI_OM" system diagnose ;;
+                    status) bash "$OM_TUI_OM" status ;;
+                    lab) bash "$OM_TUI_OM" lab runway ;;
+                    tools) bash "$OM_TUI_OM" lab tools ;;
+                    catalog) bash "$OM_TUI_OM" catalog stats ;;
+                    repos) echo "Browse repositories with live previews" ;;
+                    themes) bash src/cli/om theme current ;;
+                    current) bash src/cli/om theme current ;;
+                    stabilize) echo "Runs: om system stabilize" ;;
+                    reload) echo "Runs: om system reload" ;;
+                    quit) echo "Exit" ;;
+                  esac 2>/dev/null' \
+                  --preview-window=right:62%:wrap \
+                  --height=95% --layout=reverse --border \
+            | awk '{print $1}') || return 0
+
+        case "$choice" in
+            health) run_panel "${OM_CMD[@]}" system health ;;
+            diagnose) run_panel "${OM_CMD[@]}" system diagnose ;;
+            status) run_panel "${OM_CMD[@]}" status ;;
+            lab)
+                idea=$(lab_idea_picker)
+                [[ -n "${idea:-}" ]] && run_panel "${OM_CMD[@]}" lab show "$idea"
+                ;;
+            tools)
+                tool=$(tool_picker)
+                [[ -n "${tool:-}" ]] && run_panel "${OM_CMD[@]}" lab tool "$tool"
+                ;;
+            catalog) run_panel "${OM_CMD[@]}" catalog stats ;;
+            repos)
+                repo=$(repo_picker)
+                [[ -n "${repo:-}" ]] && run_panel "${OM_CMD[@]}" catalog show "$repo"
+                ;;
+            themes)
+                theme=$(theme_picker)
+                if command -v fzf &>/dev/null; then
+                    theme_action_menu "$theme"
+                elif [[ -n "${theme:-}" ]]; then
+                    run_panel "${OM_CMD[@]}" theme preview "$theme"
+                fi
+                ;;
+            current) run_panel "${OM_CMD[@]}" theme current ;;
+            stabilize) run_panel "${OM_CMD[@]}" system stabilize ;;
+            reload) run_panel "${OM_CMD[@]}" system reload ;;
+            quit) return 0 ;;
+        esac
+    done
+}
+
+main() {
+    if [[ ! -t 0 || ! -t 1 ]]; then
+        ui_error "om tui needs an interactive terminal."
+        exit 1
+    fi
+
+    if command -v fzf &>/dev/null; then
+        fzf_dashboard
+    else
+        fallback_menu
+    fi
+}
+
+main "$@"

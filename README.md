@@ -25,6 +25,8 @@ Omarchy/
 ./src/cli/om catalog search retro # Search repos
 ./src/cli/om system info   # System info
 ./src/cli/om system health # Health check
+./src/cli/om system guard  # Ensure Waybar is running once
+./src/cli/om system reload # Reload Hyprland and refresh Waybar
 ./src/cli/om theme list    # List installed themes
 
 # Make targets

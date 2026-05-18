@@ -385,7 +385,7 @@ omarchy theme set "Night City"
 ```bash
 hyprctl reload
 hyprctl configerrors
-omarchy restart waybar
+om system guard
 omarchy restart terminal
 omarchy restart mako
 ```
@@ -425,4 +425,3 @@ omarchy theme install https://github.com/<user>/omarchy-night-city-theme.git
 - Terminal contrast passes casual readability in daylight and dark room
 - No copyrighted Cyberpunk 2077 screenshots, logos, or extracted assets are shipped
 - Theme can be reinstalled from GitHub with `omarchy theme install`
-

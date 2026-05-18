@@ -13,7 +13,7 @@ Hyprland is a dynamic tiling Wayland compositor written in C++. It powers Omarch
 
 | File | Purpose |
 |------|---------|
-| `~/.config/hypr/hyprland.lua` | Main Hyprland config (Lua-based in Omarchy) |
+| `~/.config/hypr/hyprland.conf` | Main Hyprland config |
 | `~/.config/hypr/bindings.conf` | Keyboard and mouse bindings |
 | `~/.config/hypr/monitors.conf` | Monitor layout and scaling |
 | `~/.config/waybar/config` | Top bar configuration |
@@ -28,7 +28,7 @@ All configs support live reload. Save the file and changes apply immediately.
 
 ## Modifier Key
 
-The default modifier is `SUPER` (Windows/Meta key). It can be changed to `ALT` or any other key in `hyprland.lua`.
+The default modifier is `SUPER` (Windows/Meta key). It can be changed to `ALT` or any other key in `hyprland.conf`.
 
 Throughout this doc, `Super` = the modifier key.
 
@@ -132,6 +132,7 @@ Common dispatchers:
 - `workspace` — switch workspace
 - `movetoworkspace` — move window to workspace
 - `togglefloating` — toggle float mode
+- `layoutmsg, togglesplit` — toggle dwindle split direction on Hyprland 0.54+
 
 Modifier aliases: `SUPER`, `ALT`, `CTRL`, `SHIFT`, and combinations like `SUPER SHIFT`.
 
@@ -141,21 +142,17 @@ Key names follow xkb conventions: `Return`, `space`, `F1`–`F12`, `left`, `righ
 
 ## Window Animations
 
-Hyprland supports smooth animations with configurable bezier curves. In `hyprland.lua`:
+Hyprland supports smooth animations with configurable bezier curves. In `hyprland.conf`:
 
-```lua
-animations = {
-    enabled = true,
-    bezier = {
-        { name = "myBezier", x0 = 0.05, y0 = 0.9, x1 = 0.1, y1 = 1.05 }
-    },
-    animation = {
-        { name = "windows",    enable = true, speed = 7,  curve = "myBezier" },
-        { name = "windowsOut", enable = true, speed = 7,  curve = "default"  },
-        { name = "border",     enable = true, speed = 10, curve = "default"  },
-        { name = "fade",       enable = true, speed = 7,  curve = "default"  },
-        { name = "workspaces", enable = true, speed = 6,  curve = "default"  },
-    }
+```conf
+animations {
+    enabled = true
+    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+    animation = windows, 1, 7, myBezier
+    animation = windowsOut, 1, 7, default
+    animation = border, 1, 10, default
+    animation = fade, 1, 7, default
+    animation = workspaces, 1, 6, default
 }
 ```
 
@@ -165,21 +162,21 @@ Set `enabled = false` to disable all animations for performance.
 
 ## Blur and Transparency
 
-Control in `hyprland.lua`:
+Control in `hyprland.conf`:
 
-```lua
-decoration = {
-    rounding = 10,
-    blur = {
-        enabled = true,
-        size = 8,
-        passes = 2,
-    },
-    shadow = {
-        enabled = true,
-        range = 4,
-        render_power = 3,
-    },
+```conf
+decoration {
+    rounding = 10
+    blur {
+        enabled = true
+        size = 8
+        passes = 2
+    }
+    shadow {
+        enabled = true
+        range = 4
+        render_power = 3
+    }
 }
 ```
 
@@ -193,17 +190,17 @@ Note: older Hyprland configs used `drop_shadow = true` / `shadow_range` / `shado
 
 ## Trackpad Gestures
 
-```lua
-input = {
-    touchpad = {
-        natural_scroll = true,
-        disable_while_typing = true,
-        tap-to-click = true,
+```conf
+input {
+    touchpad {
+        natural_scroll = true
+        disable_while_typing = true
+        tap-to-click = true
     }
 }
 ```
 
-Omarchy enables natural scroll and tap-to-click by default. Adjust in `hyprland.lua`.
+Omarchy enables natural scroll and tap-to-click by default. Adjust in `hyprland.conf`.
 
 ---
 
@@ -229,13 +226,28 @@ hyprctl monitors
 
 Waybar displays workspaces, clock, system tray, and status indicators.
 
-Restart Waybar after config changes:
+Recommended startup is Hyprland-owned autostart. Add this to the `# === AUTOSTART === #` section in `~/.config/hypr/hyprland.conf`:
+
+```conf
+exec-once = waybar
+```
+
+Use the Omarchy guard when Waybar is missing, duplicated, or crashed:
+
 ```bash
-pkill waybar && waybar &
+om system guard
+```
+
+Restart or refresh after config changes:
+
+```bash
+om system reload
 ```
 
 Config: `~/.config/waybar/config`
 Style: `~/.config/waybar/style.css`
+
+Avoid repeatedly launching raw `waybar &` from a terminal. It works as a quick one-off, but it can leave duplicate bars behind; `om system guard` keeps exactly one instance running.
 
 Community Waybar themes can be installed independently — see [OMARCHY_TOOLS_ECOSYSTEM.md](OMARCHY_TOOLS_ECOSYSTEM.md).
 

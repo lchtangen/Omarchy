@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# om lab — Mine cloned repos for release ideas, tools, and integration tracks.
+set -euo pipefail
+
+OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
+cli_dir="$(dirname "$0")"
+# shellcheck source=src/cli/om-ui
+. "$cli_dir/om-ui"
+
+IDEAS="$OM_ROOT/catalog/lab-ideas.tsv"
+
+usage() {
+    ui_brand "Omarchy Lab" "Ideas, tools, and feature tracks mined from cloned repos."
+    ui_section "Usage"
+    ui_command "om lab ideas" "List release feature ideas"
+    ui_command "om lab show <id>" "Show one idea and related repos"
+    ui_command "om lab tools [query]" "List local tool repos and install scripts"
+    ui_command "om lab tool <name>" "Inspect one local tool repo"
+    ui_command "om lab repos [query]" "List cloned repos by category"
+    ui_command "om lab search <query>" "Search repo READMEs and lab ideas"
+    ui_command "om lab runway" "Top feature tracks for official release"
+    ui_section "Examples"
+    ui_command "om lab ideas" "Browse all idea tracks"
+    ui_command "om lab show theme-forge" "Inspect the theme forge idea"
+    ui_command "om lab tools voice" "Find voice-related tools"
+}
+
+idea_rows() {
+    awk -F '\t' 'NR > 1 { printf "%-18s %-20s %s\n", $1, $2, $3 }' "$IDEAS"
+}
+
+ideas() {
+    ui_brand "Lab Ideas" "Feature tracks synthesized from local cloned repos."
+    idea_rows
+}
+
+show_idea() {
+    local id="$1"
+    local found=0
+    while IFS=$'\t' read -r row_id track title repos value next; do
+        [[ "$row_id" == "id" ]] && continue
+        if [[ "$row_id" == "$id" ]]; then
+            found=1
+            ui_brand "$title" "$track"
+            ui_kv "ID" "$row_id"
+            ui_kv "Repos" "$repos"
+            ui_section "Release Value"
+            ui_note "$value"
+            ui_section "Next Implementation Step"
+            ui_note "$next"
+            ui_section "Local Matches"
+            IFS=',' read -ra repo_names <<< "$repos"
+            for repo in "${repo_names[@]}"; do
+                repo="${repo#"${repo%%[![:space:]]*}"}"
+                repo="${repo%"${repo##*[![:space:]]}"}"
+                find -L "$OM_ROOT/repos" -maxdepth 3 -type d -name "$repo" -print 2>/dev/null \
+                    | sed "s#^$OM_ROOT/##" \
+                    | while IFS= read -r path; do ui_ok "$path"; done
+            done
+            break
+        fi
+    done < "$IDEAS"
+    (( found )) || { ui_error "Idea not found: $id"; return 1; }
+}
+
+repos() {
+    local query="${1:-}"
+    ui_brand "Cloned Repos" "${query:+Filter: $query}"
+    find -L "$OM_ROOT/repos" -maxdepth 3 -type d -name .git -printf '%h\n' 2>/dev/null \
+        | sed "s#^$OM_ROOT/repos/##" \
+        | sort \
+        | while IFS= read -r repo; do
+            [[ -z "$query" || "${repo,,}" == *"${query,,}"* ]] || continue
+            printf '  %b%-58s%b %s\n' "$CYAN" "$repo" "$NC" "$(ui_badge repo)"
+        done
+}
+
+tools() {
+    local query="${1:-}"
+    ui_brand "Local Tool Repos" "${query:+Filter: $query}"
+    find -L "$OM_ROOT/repos/tools" -mindepth 1 -maxdepth 1 -type d 2>/dev/null \
+        | sort \
+        | while IFS= read -r dir; do
+            local name install language badges
+            language=""
+            name=$(basename "$dir")
+            [[ -z "$query" || "${name,,}" == *"${query,,}"* ]] || continue
+            install="-"
+            [[ -f "$dir/install.sh" ]] && install="install.sh"
+            [[ -f "$dir/Cargo.toml" ]] && language="Rust"
+            [[ -f "$dir/package.json" ]] && language="${language:+$language, }Node"
+            find "$dir" -maxdepth 1 -name '*.go' -print -quit 2>/dev/null | grep -q . && language="${language:+$language, }Go"
+            find "$dir" -maxdepth 1 -name '*.py' -print -quit 2>/dev/null | grep -q . && language="${language:+$language, }Python"
+            language="${language:-Shell/config}"
+            badges="$(ui_badge "$language")"
+            [[ "$install" != "-" ]] && badges="$badges $(ui_badge install)"
+            printf '  %b%-36s%b %-12s %s\n' "$CYAN" "$name" "$NC" "$install" "$badges"
+        done
+}
+
+tool_show() {
+    local name="$1"
+    local dir="$OM_ROOT/repos/tools/$name"
+    [[ -d "$dir" ]] || { ui_error "Tool repo not found: $name"; return 1; }
+
+    ui_brand "$name" "Local tool repo"
+    ui_kv "Path" "${dir#"$OM_ROOT"/}"
+    [[ -f "$dir/install.sh" ]] && ui_kv "Installer" "install.sh"
+    [[ -f "$dir/Cargo.toml" ]] && ui_kv "Stack" "Rust"
+    [[ -f "$dir/package.json" ]] && ui_kv "Stack" "Node"
+    find "$dir" -maxdepth 1 -name '*.go' -print -quit 2>/dev/null | grep -q . && ui_kv "Stack" "Go"
+    find "$dir" -maxdepth 1 -name '*.py' -print -quit 2>/dev/null | grep -q . && ui_kv "Stack" "Python"
+
+    ui_section "Executable Hints"
+    find "$dir" -maxdepth 2 -type f \( -name install.sh -o -name '*.sh' -o -perm -111 \) 2>/dev/null \
+        | sed "s#^$dir/##" \
+        | sort \
+        | head -30 \
+        | while IFS= read -r file; do ui_ok "$file"; done
+
+    if [[ -f "$dir/README.md" || -f "$dir/readme.md" || -f "$dir/README" ]]; then
+        local readme
+        readme=$(find "$dir" -maxdepth 1 \( -name README.md -o -name readme.md -o -name README \) -print -quit)
+        ui_section "README Preview"
+        sed -n '1,18p' "$readme" | while IFS= read -r line; do ui_note "$line"; done
+    fi
+
+    ui_section "Safe Next Step"
+    if [[ -f "$dir/install.sh" ]]; then
+        ui_note "Review first: less $dir/install.sh"
+        ui_note "Run manually when ready: bash $dir/install.sh"
+    else
+        ui_note "Inspect README and source before enabling this tool."
+    fi
+}
+
+search_lab() {
+    local query="$1"
+    ui_brand "Lab Search" "Query: $query"
+    ui_section "Ideas"
+    awk -F '\t' -v q="${query,,}" 'NR > 1 {
+        row=tolower($0)
+        if (index(row, q)) printf "  %-18s %-20s %s\n", $1, $2, $3
+    }' "$IDEAS"
+    ui_section "README Matches"
+    rg -n -i "$query" "$OM_ROOT/repos" -g 'README*' -g '*.md' 2>/dev/null \
+        | head -80 \
+        | sed "s#^$OM_ROOT/##" \
+        | while IFS= read -r line; do ui_note "$line"; done
+}
+
+runway() {
+    ui_brand "Release Runway" "Highest-leverage next features from the cloned repo ecosystem."
+    for id in theme-forge monitor-studio waybar-gallery voice-loop editor-sync cleanup-suite backup-ops community-hub; do
+        awk -F '\t' -v id="$id" 'NR > 1 && $1 == id { printf "  %-18s %-20s %s\n", $1, $2, $3 }' "$IDEAS"
+    done
+}
+
+CMD="${1:-ideas}"; shift 2>/dev/null || true
+
+case "$CMD" in
+    ideas|list) ideas ;;
+    show) [[ -n "${1:-}" ]] || { ui_error "Usage: om lab show <id>"; exit 1; }; show_idea "$1" ;;
+    tools) tools "${1:-}" ;;
+    tool) [[ -n "${1:-}" ]] || { ui_error "Usage: om lab tool <name>"; exit 1; }; tool_show "$1" ;;
+    repos) repos "${1:-}" ;;
+    search) [[ -n "${1:-}" ]] || { ui_error "Usage: om lab search <query>"; exit 1; }; search_lab "$1" ;;
+    runway) runway ;;
+    help|-h|--help) usage ;;
+    *) ui_error "Unknown lab subcommand: $CMD"; usage; exit 1 ;;
+esac

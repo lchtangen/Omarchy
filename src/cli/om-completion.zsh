@@ -14,6 +14,10 @@ _om() {
                 'catalog[Browse and search the repo catalog]' \
                 'theme[Theme management]' \
                 'system[System management]' \
+                'lab[Repo-mined ideas and tools]' \
+                'labs[Repo-mined ideas and tools]' \
+                'tui[Interactive dashboard]' \
+                'dashboard[Interactive dashboard]' \
                 'status[Show project overview]' \
                 'update[Pull latest from all repos]' \
                 'extract[Extract assets from repos]' \
@@ -47,7 +51,10 @@ _om() {
                     esac
                     ;;
                 system|sys)
-                    _values 'system subcommands' 'info[System info]' 'health[Health check]' 'stabilize[Stabilize session]' 'reload[Reload services]' 'guard[Start guard]'
+                    _values 'system subcommands' 'info[System info]' 'health[Health check]' 'diagnose[Runtime diagnostics]' 'diag[Runtime diagnostics]' 'stabilize[Stabilize session]' 'reload[Reload services]' 'guard[Start guard]'
+                    ;;
+                lab|labs)
+                    _values 'lab subcommands' 'ideas[List feature ideas]' 'show[Show idea]' 'tools[List tool repos]' 'tool[Show one tool]' 'repos[List cloned repos]' 'search[Search ideas/readmes]' 'runway[Release runway]'
                     ;;
             esac
             ;;

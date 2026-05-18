@@ -272,7 +272,7 @@ Waybar styling is included in each theme's `waybar.css`. Community Waybar-specif
 git clone https://github.com/<user>/omarchy-waybar ~/Code/omarchy-tools/waybar-theme
 
 # Follow repo install instructions, then restart Waybar
-pkill waybar && waybar &
+om system guard
 ```
 
 ---
@@ -315,7 +315,7 @@ omarchy theme set "<current-theme-name>"
 
 **Waybar missing or broken after theme change:**
 ```bash
-pkill waybar; waybar &
+om system guard
 ```
 
 **Restore default Tokyo Night theme:**

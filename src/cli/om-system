@@ -4,198 +4,283 @@
 set -euo pipefail
 
 OM_ROOT="${OM_ROOT:-$(cd "$(dirname "$(dirname "$(dirname "$0")")")" && pwd)}"
-
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
-BLUE='\033[0;34m'; CYAN='\033[0;36m'; NC='\033[0m'
-BOLD='\033[1m'; DIM='\033[2m'
+cli_dir="$(dirname "$0")"
+# shellcheck source=src/cli/om-ui
+. "$cli_dir/om-ui"
 
 usage() {
-    cat <<EOF
-${BOLD}om system${NC} — System management and diagnostics
+    ui_brand "Omarchy Systems Console" "Diagnostics, health checks, and session repair."
+    ui_section "Usage"
+    ui_command "om system info" "System information overview"
+    ui_command "om system health" "Health check and diagnostics"
+    ui_command "om system diagnose" "Collect focused runtime diagnostics"
+    ui_command "om system stabilize [--inhibit]" "Stabilize Wayland session"
+    ui_command "om system reload" "Reload Hyprland config"
+    ui_command "om system guard" "Ensure Waybar is running once"
+    ui_section "Examples"
+    ui_command "om system info" "Show system info"
+    ui_command "om system health" "Run health checks"
+    ui_command "om system diagnose" "Print logs and service diagnostics"
+    ui_command "om system stabilize" "Kill runaway processes and restart guards"
+    ui_command "om system reload" "Debounced Hyprland reload"
+}
 
-${BOLD}Usage:${NC}
-  om system ${GREEN}info${NC}                  # System information overview
-  om system ${GREEN}health${NC}                # Health check and diagnostics
-  om system ${GREEN}stabilize${NC} [--inhibit] # Stabilize Wayland session
-  om system ${GREEN}reload${NC}                # Reload Hyprland config
-  om system ${GREEN}guard${NC}                 # Waybar guard — ensure running
+have() { command -v "$1" &>/dev/null; }
 
-${BOLD}Examples:${NC}
-  om system info              # Show system info
-  om system health            # Run health checks
-  om system stabilize         # Kill runaway, restart guards
-  om system reload            # Debounced Hyprland reload
-EOF
+proc_count() {
+    local count
+    count=$(pgrep -cx "$1" 2>/dev/null) || count=0
+    printf '%s\n' "$count"
+}
+
+hypr_socket2() {
+    local sig="${HYPRLAND_INSTANCE_SIGNATURE:-}"
+    [[ -z "$sig" ]] && return 1
+
+    local dir
+    for dir in "${XDG_RUNTIME_DIR:-}/hypr/$sig" "/tmp/hypr/$sig"; do
+        [[ -n "$dir" && -S "$dir/.socket2.sock" ]] && {
+            printf '%s\n' "$dir/.socket2.sock"
+            return 0
+        }
+    done
+    return 1
 }
 
 system_info() {
-    echo -e "${BOLD}=== System Information ===${NC}\n"
+    ui_brand "System Information" "Host profile and desktop session context."
 
     # OS
     if [[ -f /etc/os-release ]]; then
+        # shellcheck disable=SC1091
         . /etc/os-release
-        echo -e "  ${CYAN}OS:${NC}        $PRETTY_NAME"
+        ui_kv "OS" "$PRETTY_NAME"
     fi
-    echo -e "  ${CYAN}Kernel:${NC}    $(uname -r)"
-    echo -e "  ${CYAN}Uptime:${NC}    $(uptime -p 2>/dev/null || uptime | awk -F, '{print $1}')"
-    echo -e "  ${CYAN}Shell:${NC}     $SHELL"
-    echo -e "  ${CYAN}Terminal:${NC}  ${TERM:-unknown}"
+    ui_kv "Kernel" "$(uname -r)"
+    ui_kv "Uptime" "$(uptime -p 2>/dev/null || uptime | awk -F, '{print $1}')"
+    ui_kv "Shell" "$SHELL"
+    ui_kv "Terminal" "${TERM:-unknown}"
 
     # Desktop
     if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
-        echo -e "  ${CYAN}WM:${NC}         Hyprland (${HYPRLAND_INSTANCE_SIGNATURE:0:8})"
+        ui_kv "WM" "Hyprland (${HYPRLAND_INSTANCE_SIGNATURE:0:8})"
         monitor_count=$(hyprctl monitors -j 2>/dev/null | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "?")
-        echo -e "  ${CYAN}Monitors:${NC}   $monitor_count"
+        ui_kv "Monitors" "$monitor_count"
     else
-        echo -e "  ${YELLOW}WM:${NC}         Not Hyprland (or no session)"
+        ui_kv "WM" "Not Hyprland (or no session)"
     fi
 
     # Hardware
-    echo -e "  ${CYAN}CPU:${NC}        $(lscpu 2>/dev/null | grep 'Model name' | head -1 | cut -d: -f2 | xargs || echo '?')"
+    ui_section "Hardware"
+    ui_kv "CPU" "$(lscpu 2>/dev/null | grep 'Model name' | head -1 | cut -d: -f2 | xargs || echo '?')"
     mem_total=$(grep MemTotal /proc/meminfo | awk '{printf "%.1f GB", $2/1024/1024}')
-    echo -e "  ${CYAN}Memory:${NC}    $mem_total"
-    echo -e "  ${CYAN}GPU:${NC}       $(lspci 2>/dev/null | grep -i 'vga\|3d' | head -1 | cut -d: -f3 | xargs || echo '?')"
+    ui_kv "Memory" "$mem_total"
+    ui_kv "GPU" "$(lspci 2>/dev/null | grep -i 'vga\|3d' | head -1 | cut -d: -f3 | xargs || echo '?')"
 
     # Audio
-    if command -v pactl &>/dev/null; then
-        sink_count=$(pactl list sinks short 2>/dev/null | wc -l)
-        echo -e "  ${CYAN}Audio sinks:${NC} $sink_count"
+    if have pactl; then
+        if ! sink_count=$(pactl list sinks short 2>/dev/null | wc -l); then
+            sink_count=0
+        fi
+        ui_kv "Audio sinks" "$sink_count"
     fi
 }
 
 health_check() {
     local errors=0 warnings=0
 
-    echo -e "${BOLD}=== Health Check ===${NC}\n"
+    ui_brand "Health Check" "Desktop runtime, services, catalog, and disk status."
 
     # 1. Hyprland
     if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
-        echo -e "  ${GREEN}✓${NC} Hyprland session detected"
-        # Check socket
-        if [[ -S "/tmp/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" ]]; then
-            echo -e "  ${GREEN}✓${NC} Hyprland socket2 available"
+        ui_ok "Hyprland session detected"
+        if hypr_socket2 >/dev/null; then
+            ui_ok "Hyprland socket2 available"
         else
-            echo -e "  ${YELLOW}⚠${NC} Hyprland socket2 not found"
+            ui_warn "Hyprland socket2 not found"
             warnings=$((warnings + 1))
         fi
     else
-        echo -e "  ${YELLOW}⚠${NC} No Hyprland session"
+        ui_warn "No Hyprland session"
         warnings=$((warnings + 1))
     fi
 
     # 2. Waybar
     if pgrep -x waybar > /dev/null; then
-        count=$(pgrep -x waybar | wc -l)
+        count=$(proc_count waybar)
         if (( count == 1 )); then
-            echo -e "  ${GREEN}✓${NC} Waybar running (1 instance)"
+            ui_ok "Waybar running (1 instance)"
         else
-            echo -e "  ${YELLOW}⚠${NC} Waybar: $count instances"
+            ui_warn "Waybar: $count instances"
             warnings=$((warnings + 1))
         fi
     else
-        echo -e "  ${RED}✗${NC} Waybar not running"
+        ui_err "Waybar not running"
         errors=$((errors + 1))
     fi
 
     # 3. PipeWire
-    if command -v pactl &>/dev/null && pactl info &>/dev/null; then
-        echo -e "  ${GREEN}✓${NC} PipeWire audio running"
+    if have pactl && pactl info &>/dev/null; then
+        ui_ok "PipeWire audio running"
     else
-        echo -e "  ${RED}✗${NC} PipeWire not available"
+        ui_err "PipeWire not available"
         errors=$((errors + 1))
     fi
 
     # 4. Notification daemon
     if pgrep -x mako > /dev/null || pgrep -x dunst > /dev/null || pgrep -x swaync > /dev/null; then
-        echo -e "  ${GREEN}✓${NC} Notification daemon running"
+        ui_ok "Notification daemon running"
     else
-        echo -e "  ${YELLOW}⚠${NC} No notification daemon"
+        ui_warn "No notification daemon"
         warnings=$((warnings + 1))
     fi
 
     # 5. Display manager
     if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
-        echo -e "  ${GREEN}✓${NC} Wayland display: $WAYLAND_DISPLAY"
+        ui_ok "Wayland display: $WAYLAND_DISPLAY"
     fi
 
     # 6. Battery
     if [[ -d /sys/class/power_supply/BAT0 ]]; then
         cap=$(cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo "?")
-        echo -e "  ${GREEN}✓${NC} Battery: ${cap}%"
+        ui_ok "Battery: ${cap}%"
     fi
 
     # 7. Repos
     repo_count=$(find -L "$OM_ROOT/repos" -name '.git' -type d 2>/dev/null | wc -l)
-    echo -e "  ${GREEN}✓${NC} $repo_count cloned repos"
+    ui_ok "$repo_count cloned repos"
 
     # 8. Disk space
     avail=$(df -h "$OM_ROOT" | tail -1 | awk '{print $4}')
-    echo -e "  ${GREEN}✓${NC} Disk available: $avail"
+    ui_ok "Disk available: $avail"
 
     # Summary
     echo
     if (( errors > 0 )); then
-        echo -e "  ${RED}${errors} errors${NC}, ${YELLOW}${warnings} warnings${NC}"
+        ui_err "$errors errors, $warnings warnings"
     elif (( warnings > 0 )); then
-        echo -e "  ${GREEN}All pass${NC}, ${YELLOW}${warnings} warnings${NC}"
+        ui_warn "All pass, $warnings warnings"
     else
-        echo -e "  ${GREEN}All checks pass${NC}"
+        ui_success "  All checks pass"
     fi
 }
 
 stabilize() {
-    echo -e "${BOLD}=== Stabilizing Session ===${NC}\n"
+    ui_brand "Stabilizing Session" "Waybar, hypridle, and optional sleep inhibition."
+
+    local repaired=0
 
     # Waybar
-    wc=$(pgrep -x waybar | wc -l)
+    wc=$(proc_count waybar)
     if (( wc > 1 )); then
-        echo -e "  ${YELLOW}Killing $(( wc - 1 )) runaway waybar instances${NC}"
+        have waybar || { ui_err "waybar command not found"; return 1; }
+        ui_warn "Killing $(( wc - 1 )) duplicate Waybar instances"
         pkill -x waybar; sleep 0.5
         waybar &>/dev/null &
-        echo -e "  ${GREEN}✓${NC} Waybar restarted"
+        ui_ok "Waybar restarted"
+        repaired=1
     elif (( wc == 0 )); then
-        echo -e "  ${YELLOW}Starting waybar${NC}"
+        have waybar || { ui_err "waybar command not found"; return 1; }
+        ui_warn "Starting Waybar"
         waybar &>/dev/null &
-        echo -e "  ${GREEN}✓${NC} Waybar started"
+        ui_ok "Waybar started"
+        repaired=1
     else
-        echo -e "  ${GREEN}✓${NC} Waybar OK (1 instance)"
+        ui_ok "Waybar OK (1 instance)"
     fi
 
     # Hypridle
-    killall hypridle 2>/dev/null || true
-    sleep 0.3
-    hypridle &
-    echo -e "  ${GREEN}✓${NC} Hypridle restarted"
+    if have hypridle; then
+        killall hypridle 2>/dev/null || true
+        sleep 0.3
+        hypridle &>/dev/null &
+        ui_ok "Hypridle restarted"
+        repaired=1
+    else
+        ui_warn "hypridle command not found"
+    fi
 
     # Inhibit
     if [[ "${1:-}" == "--inhibit" ]]; then
+        have systemd-inhibit || { ui_err "systemd-inhibit command not found"; return 1; }
         systemd-inhibit --what=sleep --why="Omarchy stabilize" sleep infinity &
-        echo -e "  ${GREEN}✓${NC} Sleep inhibitor started"
+        ui_ok "Sleep inhibitor started"
+        repaired=1
     fi
 
-    echo -e "\n${GREEN}Session stabilized${NC}"
+    if (( repaired )); then
+        ui_success "Session stabilized"
+    else
+        ui_success "Session already stable"
+    fi
 }
 
 reload() {
-    echo "Reloading Hyprland..."
+    have hyprctl || { ui_error "hyprctl not found"; return 1; }
+    ui_header "Reload" "Reloading Hyprland and refreshing Waybar."
     hyprctl reload
-    echo -e "${GREEN}✓${NC} Hyprland reloaded"
+    ui_ok "Hyprland reloaded"
     pkill -USR2 waybar 2>/dev/null || true
-    echo -e "${GREEN}✓${NC} Waybar refreshed"
+    ui_ok "Waybar refreshed"
 }
 
 guard() {
     if pgrep -x waybar > /dev/null; then
-        count=$(pgrep -x waybar | wc -l)
+        count=$(proc_count waybar)
         if (( count > 1 )); then
-            echo -e "${YELLOW}Killing $(($count - 1)) duplicate waybar instances${NC}"
+            ui_warn "Killing $((count - 1)) duplicate Waybar instances"
             for pid in $(pgrep -x waybar | tail -n +2); do kill "$pid" 2>/dev/null || true; done
         fi
-        echo -e "${GREEN}✓${NC} Waybar running (single instance)"
+        ui_ok "Waybar running (single instance)"
     else
-        echo -e "${YELLOW}Waybar not running — starting${NC}"
+        have waybar || { ui_error "waybar not found"; return 1; }
+        ui_warn "Waybar not running - starting"
         waybar &>/dev/null &
-        echo -e "${GREEN}✓${NC} Waybar started"
+        ui_ok "Waybar started"
+    fi
+}
+
+diagnose() {
+    ui_brand "Omarchy Diagnostics" "Focused runtime evidence for release support."
+    system_info
+    echo
+    health_check
+
+    ui_section "Hyprland"
+    if have hyprctl; then
+        local hypr_errors socket
+        if hypr_errors=$(hyprctl configerrors 2>&1); then
+            if [[ -n "$hypr_errors" ]]; then
+                while IFS= read -r line; do printf '  %s\n' "$line"; done <<< "$hypr_errors"
+            else
+                echo "  no config errors"
+            fi
+        else
+            echo "  hyprctl unavailable for this session"
+            [[ -n "$hypr_errors" ]] && while IFS= read -r line; do printf '  %s\n' "$line"; done <<< "$hypr_errors"
+        fi
+        if socket=$(hypr_socket2); then
+            ui_kv "socket2" "$socket"
+        else
+            ui_kv "socket2" "unavailable"
+        fi
+    else
+        ui_kv "hyprctl" "not installed"
+    fi
+
+    ui_section "Failed Units"
+    if have systemctl; then
+        systemctl --user --failed --no-pager 2>/dev/null || echo "  user units: unavailable"
+        systemctl --failed --no-pager 2>/dev/null || echo "  system units: unavailable"
+    else
+        ui_kv "systemctl" "not installed"
+    fi
+
+    ui_section "Recent Warnings"
+    if have journalctl; then
+        journalctl -b -p warning..alert --no-pager -n 40 2>/dev/null || echo "  journal unavailable"
+    else
+        ui_kv "journalctl" "not installed"
     fi
 }
 
@@ -204,10 +289,11 @@ CMD="${1:-help}"; shift 2>/dev/null || true
 
 case "$CMD" in
     info)       system_info ;;
-    health|diag) health_check ;;
+    health)      health_check ;;
+    diagnose|diag) diagnose ;;
     stabilize)  stabilize "${1:-}" ;;
     reload)     reload ;;
     guard)      guard ;;
     help|-h|--help) usage ;;
-    *) echo "Unknown system subcommand: $CMD"; usage; exit 1 ;;
+    *) ui_error "Unknown system subcommand: $CMD"; usage; exit 1 ;;
 esac
